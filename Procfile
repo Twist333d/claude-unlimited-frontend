@@ -1,1 +1,2 @@
-web: serve -s frontend/build
+web: serve -s build
+
