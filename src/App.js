@@ -57,28 +57,16 @@ function App() {
   }, [fetchConversations]);
 
   const fetchMessages = useCallback(
-  debounce(async (conversationId) => {
-    try {
-      const response = await axios.get(`${config.apiUrl}/conversations/${conversationId}/messages`);
-      setMessages(response.data);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  }, 150),
-  []
-);
-
-const loadMoreMessages = useCallback(async (startIndex, stopIndex) => {
-  if (!currentConversationId) return;
-  try {
-    const response = await axios.get(`${config.apiUrl}/conversations/${currentConversationId}/messages`, {
-      params: { start: startIndex, limit: stopIndex - startIndex }
-    });
-    setMessages(prevMessages => [...response.data.reverse(), ...prevMessages]);
-  } catch (error) {
-    console.error('Error loading more messages:', error);
-  }
-}, [currentConversationId]);
+    debounce(async (conversationId) => {
+      try {
+        const response = await axios.get(`${config.apiUrl}/conversations/${conversationId}/messages`);
+        setMessages(response.data);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    }),
+    [config]
+  );
 
   const fetchUsage = useCallback(
     debounce(async (conversationId) => {
@@ -135,10 +123,8 @@ const loadMoreMessages = useCallback(async (startIndex, stopIndex) => {
       messages={messages}
       isLoading={isLoading}
       onSend={handleSend}
-      loadMoreMessages={loadMoreMessages}
-
     />
-  ), [messages, isLoading, handleSend, loadMoreMessages]);
+  ), [messages, isLoading, handleSend]);
 
   const memoizedConversationList = useMemo(() => (
     <ConversationList
@@ -154,7 +140,7 @@ const loadMoreMessages = useCallback(async (startIndex, stopIndex) => {
   ), [usage, rightSidebarCollapsed]);
 
   return (
-      <div className="relative flex h-screen bg-porcelain text-oxford-blue">
+      <div className="relative flex h-screen bg-neutral-50 text-neutral-800">
         <div className="fixed top-0 left-0 bottom-0 w-10 z-50 bg-transparent">
           <button
               className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 transition"
