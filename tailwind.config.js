@@ -17,6 +17,10 @@ module.exports = {
         'chat-background': '#F9F9F9',
         'user-message-background': '#E6E6E6',
       },
+      maxWidth: {
+        'chat-container': '896px',
+        'chat-messages': '768px',
+      },
       fontFamily: {
         'sans': ['Roboto', 'sans-serif'],
         'serif': ['Merriweather', 'serif'],
