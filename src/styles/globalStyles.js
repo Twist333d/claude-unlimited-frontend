@@ -14,7 +14,6 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${props => props.theme.colors.white};
   }
 
-
   * {
     box-sizing: border-box;
   }
@@ -26,7 +25,6 @@ const GlobalStyle = createGlobalStyle`
     font-weight: ${props => props.theme.typography.fontWeight.bold};
     line-height: 1.25;
   }
-
 
   p, ul, ol, pre, table, blockquote {
     margin-top: 0;

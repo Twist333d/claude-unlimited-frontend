@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@heroicons/react": "^2.1.5",
     "axios": "^1.7.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.399.0",
@@ -37,7 +38,6 @@
     "eject": "react-scripts eject",
     "heroku-postbuild": "npm run build",
     "build:css": "tailwindcss build src/index.css -o src/tailwind.output.css"
-
   },
   "eslintConfig": {
     "extends": [

@@ -1,113 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
 import axios from 'axios';
-import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
-import { colors, spacing, borderRadius, shadows, breakpoints, zIndex, fontSizes, fontWeights, typography } from './styles/designSystem';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 import ConversationList from './components/ConversationList';
 import ChatWindow from './components/ChatWindow';
 import UsageStats from './components/UsageStats';
-import GlobalStyle from './styles/globalStyles';
 import config from './config';
+import './index.css';
 
-const theme = {
-  colors,
-  spacing,
-  borderRadius,
-  shadows,
-  breakpoints,
-  zIndex,
-  fontSizes,
-  fontWeights,
-  typography
-};
 
-const AppContainer = styled.div`
-  position: relative;
-  display: flex;
-  height: 100vh;
-  background-color: ${props => props.theme.colors.background};
-  color: ${props => props.theme.colors.text};
-`;
-
-const LeftSidebarHoverArea = styled.div`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 10px;
-  z-index: ${props => props.theme.zIndex.sticky + 1};
-`;
-
-const LeftSidebar = styled.div`
-  position: fixed;
-  top: 0;
-  left: ${props => (props.$isCollapsed && !props.$hovered) ? '-190px' : '0'};
-  width: ${props => props.$isCollapsed ? '60px' : '280px'};
-  height: 100vh;
-  background-color: ${props => props.theme.colors.white};
-  border-right: 1px solid ${props => props.theme.colors.gray300};
-  transition: left 0.2s ease, width 0.3s ease;
-  overflow: hidden;
-  box-shadow: ${props => props.theme.shadows.md};
-  z-index: ${props => props.theme.zIndex.sticky};
-  &:hover {
-    left: 0;
-    width: 280px;
-  }
-`;
-
-const Sidebar = styled.div`
-  position: fixed;
-  top: 0;
-  ${props => props.$isLeft ? 'left: 0;' : 'right: 0;'}
-  width: ${props => props.$isCollapsed ? '60px' : '280px'}; // Increased from 250px
-  height: 100vh;
-  background-color: ${props => props.theme.colors.white};
-  border-right: 1px solid ${props => props.theme.colors.gray300};
-  transition: width 0.3s ease;
-  overflow: hidden;
-  box-shadow: ${props => props.theme.shadows.md};
-  z-index: ${props => props.theme.zIndex.sticky};
-`;
-
-const MainContent = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  margin-left: ${props => props.$leftSidebarWidth};
-  margin-right: ${props => props.$rightSidebarWidth};
-  overflow-y: auto;
-`;
-
-const ToggleButton = styled.button`
-  background: none;
-  border: none;
-  color: ${props => props.theme.colors.primary};
-  cursor: pointer;
-  padding: ${props => props.theme.spacing.md};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const NewConversationButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${props => props.theme.colors.fountainBlue};
-  color: ${props => props.theme.colors.white};
-  border: none;
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: ${props => props.theme.spacing.md};
-  margin: ${props => props.theme.spacing.md};
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-
-  &:hover {
-    background-color: ${props => props.theme.colors.baliHai};
-  }
-`;
 
 function App() {
   const [conversations, setConversations] = useState([]);
@@ -119,7 +19,7 @@ function App() {
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
   const [leftSidebarHovered, setLeftSidebarHovered] = useState(false);
 
-    const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       const response = await axios.get(`${config.apiUrl}/conversations`);
       setConversations(response.data);
@@ -201,44 +101,57 @@ function App() {
     }
   }, [currentConversationId, fetchMessages, fetchUsage]);
 
-   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <AppContainer>
-        <LeftSidebarHoverArea
-          onMouseEnter={() => setLeftSidebarHovered(true)}
-          onMouseLeave={() => setLeftSidebarHovered(false)}
-        />
-        <LeftSidebar $isCollapsed={leftSidebarCollapsed} $hovered={leftSidebarHovered}>
-          <NewConversationButton onClick={startNewConversation}>
-            <PlusCircle size={24} style={{ marginRight: spacing.sm }} />
-            New Conversation
-          </NewConversationButton>
-          <ConversationList
-            conversations={conversations}
-            currentConversationId={currentConversationId}
-            onSelectConversation={setCurrentConversationId}
-            isCollapsed={leftSidebarCollapsed}
-          />
-        </LeftSidebar>
-        <MainContent
-          $leftSidebarWidth={leftSidebarCollapsed ? '60px' : '280px'}
-          $rightSidebarWidth={rightSidebarCollapsed ? '0' : '280px'}
+  return (
+    <div className="relative flex h-screen bg-porcelain text-oxford-blue">
+      <div
+        className={`fixed top-0 left-0 bottom-0 w-10 z-50 ${
+          leftSidebarHovered ? 'bg-gray-200' : 'bg-transparent'
+        }`}
+        onMouseEnter={() => setLeftSidebarHovered(true)}
+        onMouseLeave={() => setLeftSidebarHovered(false)}
+      />
+      <div
+        className={`fixed top-0 left-0 h-screen transition-all duration-300 ${
+          leftSidebarCollapsed && !leftSidebarHovered
+            ? 'w-16 -translate-x-[190px]'
+            : 'w-72 translate-x-0 bg-white border-r border-gray-300 shadow-md z-40'
+        }`}
+      >
+        <button
+          className="flex items-center justify-center bg-fountain-blue text-white rounded-md px-4 py-2 m-4 transition hover:bg-bali-hai"
+          onClick={startNewConversation}
         >
-          <ChatWindow
-            messages={messages}
-            isLoading={isLoading}
-            onSend={handleSend}
-          />
-        </MainContent>
-        <Sidebar $isLeft={false} $isCollapsed={rightSidebarCollapsed}>
-          <ToggleButton onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}>
-            {rightSidebarCollapsed ? <ChevronLeft /> : <ChevronRight />}
-          </ToggleButton>
-          <UsageStats usage={usage} isCollapsed={rightSidebarCollapsed} />
-        </Sidebar>
-      </AppContainer>
-    </ThemeProvider>
+          <PlusCircleIcon className="h-6 w-6 mr-2" />
+          New Conversation
+        </button>
+        <ConversationList
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          onSelectConversation={setCurrentConversationId}
+          isCollapsed={leftSidebarCollapsed}
+        />
+      </div>
+      <main className={`flex-1 flex justify-center overflow-y-auto ${leftSidebarCollapsed ? 'ml-16' : 'ml-72'} ${rightSidebarCollapsed ? 'mr-0' : 'mr-72'}`}>
+        <ChatWindow
+          messages={messages}
+          isLoading={isLoading}
+          onSend={handleSend}
+        />
+      </main>
+      <div
+        className={`fixed top-0 right-0 h-screen transition-all duration-300 ${
+          rightSidebarCollapsed ? 'w-0' : 'w-72 bg-white border-l border-gray-300 shadow-md z-40'
+        }`}
+      >
+        <button
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition"
+          onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
+        >
+          {rightSidebarCollapsed ? <ChevronRightIcon className="h-6 w-6" /> : <ChevronLeftIcon className="h-6 w-6" />}
+        </button>
+        <UsageStats usage={usage} isCollapsed={rightSidebarCollapsed} />
+      </div>
+    </div>
   );
 }
 
