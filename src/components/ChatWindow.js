@@ -65,57 +65,51 @@ const scrollToBottom = useCallback(() => {
         }
       }, [handleScroll]);
 
-  const markdownComponents = {
-    code({ node, inline, className, children, ...props }) {
-      const match = /language-(\w+)/.exec(className || '');
-      const code = String(children).replace(/\n$/, '');
-      return !inline && match ? (
-        <div className="relative">
-          <button
-            className="absolute top-2 right-2 bg-white text-fountain-blue border border-fountain-blue rounded p-1 text-sm cursor-pointer opacity-70 hover:opacity-100 transition"
-            onClick={() => handleCopyCode(code)}
-          >
-            <ClipboardDocumentIcon className="h-4 w-4 inline-block mr-1" />
-            {copiedCode === code ? 'Copied!' : 'Copy'}
-          </button>
-          <SyntaxHighlighter
-            style={vscDarkPlus}
-            language={match[1]}
-            PreTag="div"
-            {...props}
-            customStyle={{
-              margin: '16px 0',
-              borderRadius: '4px',
-              padding: '16px',
-              backgroundColor: '#1E1E1E',
-            }}
-          >
-            {code}
-          </SyntaxHighlighter>
-        </div>
-      ) : (
-        <code className={`${className} bg-gray-100 rounded px-1`} {...props}>
-          {children}
-        </code>
-      );
-    },
-    img({ node, ...props }) {
-      return <img className="max-w-full h-auto my-4" {...props} alt="" />;
-    },
-    table({ node, ...props }) {
-      return (
-        <div className="overflow-x-auto my-4">
-          <table className="min-w-full divide-y divide-gray-200" {...props} />
-        </div>
-      );
-    },
-  };
+    const markdownComponents = {
+      code({ node, inline, className, children, ...props }) {
+        const match = /language-(\w+)/.exec(className || '');
+        const code = String(children).replace(/\n$/, '');
+        return !inline && match ? (
+          <div className="relative">
+            <button
+              className="absolute top-2 right-2 bg-white text-fountain-blue border border-fountain-blue rounded p-1 text-sm cursor-pointer opacity-70 hover:opacity-100 transition"
+              onClick={() => handleCopyCode(code)}
+            >
+              <ClipboardDocumentIcon className="h-4 w-4 inline-block mr-1" />
+              {copiedCode === code ? 'Copied!' : 'Copy'}
+            </button>
+            <SyntaxHighlighter
+              style={vscDarkPlus}
+              language={match[1]}
+              PreTag="div"
+              className="my-4 rounded-md p-4 bg-gray-900 text-gray-300 overflow-auto code-block"
+            >
+              {code}
+            </SyntaxHighlighter>
+          </div>
+        ) : (
+          <code className={`${className} text-gray-600`} {...props}>
+            {children}
+          </code>
+        );
+      },
+      img({ node, ...props }) {
+        return <img className="max-w-full h-auto my-4" {...props} alt="" />;
+      },
+      table({ node, ...props }) {
+        return (
+          <div className="overflow-x-auto my-4">
+            <table className="min-w-full divide-y divide-gray-200" {...props} />
+          </div>
+        );
+      },
+    };
 
     const MessageComponent = useCallback(({ index, data }) => {
       const message = data[index];
       return (
         <div
-          className={`rounded-lg p-4 mb-4 ${
+          className={`rounded-lg p-4 mb-4 max-w-[70%] ${
             message.role === 'user'
               ? 'self-end bg-user-message-background'
               : 'self-start bg-light-gray'
@@ -124,6 +118,7 @@ const scrollToBottom = useCallback(() => {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={markdownComponents}
+            className="break-words"
           >
             {message.content}
           </ReactMarkdown>
