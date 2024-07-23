@@ -6,6 +6,7 @@ import ChatWindow from './components/ChatWindow';
 import UsageStats from './components/UsageStats';
 import config from './config';
 import './index.css';
+import debounce from 'lodash/debounce'; // Import the debounce function from Lodash
 
 function App() {
   const [conversations, setConversations] = useState([]);
@@ -51,23 +52,33 @@ function App() {
     }
   }, [currentConversationId]);
 
-  const fetchMessages = useCallback(async (conversationId) => {
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  const fetchMessages = useCallback(
+  debounce(async (conversationId) => {
     try {
       const response = await axios.get(`${config.apiUrl}/conversations/${conversationId}/messages`);
       setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
-  }, []);
+  }, 150),
+  []
+);
 
-  const fetchUsage = useCallback(async (conversationId) => {
-    try {
-      const response = await axios.get(`${config.apiUrl}/usage?conversation_id=${conversationId}`);
-      setUsage(response.data);
-    } catch (error) {
-      console.error('Error fetching usage:', error);
-    }
-  }, []);
+  const fetchUsage = useCallback(
+    debounce(async (conversationId) => {
+      try {
+        const response = await axios.get(`${config.apiUrl}/usage?conversation_id=${conversationId}`);
+        setUsage(response.data);
+      } catch (error) {
+        console.error('Error fetching usage:', error);
+      }
+    }, 150),
+    []
+  );
 
 
   const handleSend = useCallback(async (input) => {

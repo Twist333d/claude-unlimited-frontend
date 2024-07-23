@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { ChevronDoubleDownIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import debounce from 'lodash/debounce'; // Import the debounce function from Lodash
 
 function ChatWindow({ messages, isLoading, onSend }) {
   const [input, setInput] = useState('');
@@ -19,12 +20,15 @@ const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const handleScroll = useCallback(() => {
-    if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      setShowScrollDown(scrollTop + clientHeight < scrollHeight - 10);
-    }
-  }, []);
+    const handleScroll = useCallback(
+      debounce(() => {
+        if (messagesContainerRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+          setShowScrollDown(scrollTop + clientHeight < scrollHeight - 10);
+        }
+      }, 120),
+      []
+    );
 
   const handleSend = useCallback(() => {
     if (input.trim() && !isLoading) {
@@ -65,7 +69,7 @@ const scrollToBottom = useCallback(() => {
         }
       }, [handleScroll]);
 
-    const markdownComponents = {
+    const markdownComponents = useMemo(() => ({
       code({ node, inline, className, children, ...props }) {
         const match = /language-(\w+)/.exec(className || '');
         const code = String(children).replace(/\n$/, '');
@@ -103,9 +107,9 @@ const scrollToBottom = useCallback(() => {
           </div>
         );
       },
-    };
+    }), []);
 
-    const MessageComponent = useCallback(({ index, data }) => {
+    const MessageComponent = React.memo(({ index, data }) => {
       const message = data[index];
       return (
         <div
