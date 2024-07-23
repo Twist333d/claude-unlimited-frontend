@@ -1,121 +1,46 @@
 import React from 'react';
-import styled from 'styled-components';
 import { formatTokensOrCost } from '../utils/numberFormatting';
-import { Hash, DollarSign } from 'lucide-react';
-
-const StatsContainer = styled.div`
-    background-color: ${props => props.theme.colors.white};
-    padding: ${props => props.theme.spacing.md};
-    height: 100%;
-    overflow-y: auto;
-    color: ${props => props.theme.colors.oxfordBlue};
-    font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-`;
-
-const StatsTitle = styled.h2`
-  font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-  font-size: ${props => props.theme.typography.fontSize.large};
-  color: ${props => props.theme.colors.oxfordBlue};
-  margin-bottom: ${props => props.theme.spacing.md};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-`;
-
-const StatItem = styled.div`
-  margin-bottom: ${props => props.theme.spacing.sm};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const StatLabel = styled.span`
-  font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-  font-size: ${props => props.theme.typography.fontSize.small};
-  color: ${props => props.theme.colors.paleSky};
-`;
-
-const StatValue = styled.span`
-  font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-  font-size: ${props => props.theme.typography.fontSize.base};
-  color: ${props => props.theme.colors.oxfordBlue};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-`;
-
-const Divider = styled.hr`
-  border: none;
-  border-top: 1px solid ${props => props.theme.colors.lightGray};
-  margin: ${props => props.theme.spacing.md} 0;
-`;
-
-const SubTitle = styled.h3`
-  font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-  font-size: ${props => props.theme.typography.fontSize.base};
-  color: ${props => props.theme.colors.oxfordBlue};
-  margin-bottom: ${props => props.theme.spacing.sm};
-  font-weight: ${props => props.theme.typography.fontWeight.bold};
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.xs};
-`;
-
-const CollapsedStats = styled.div`
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    padding: ${props => props.theme.spacing.md};
-    text-align: center;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: ${props => props.theme.colors.white};
-    color: ${props => props.theme.colors.oxfordBlue};
-    font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-`;
+import { ChevronRightIcon, CurrencyDollarIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 function UsageStats({ usage, isCollapsed }) {
   if (isCollapsed) {
     return (
-      <CollapsedStats>
-        Usage: {usage && usage.total_cost ? formatTokensOrCost(usage.total_cost, true) : 'N/A'}
-      </CollapsedStats>
+      <div className="h-full flex items-center justify-between bg-white text-oxford-blue px-4">
+        <span>Usage: {usage && usage.total_cost ? formatTokensOrCost(usage.total_cost, true) : 'N/A'}</span>
+        <ChevronRightIcon className="h-5 w-5 text-oxford-blue" />
+      </div>
     );
   }
 
-  if (!usage) return <StatsContainer>Loading usage statistics...</StatsContainer>;
+  if (!usage) return <div className="h-full bg-white flex items-center justify-center">Loading usage statistics...</div>;
 
   return (
-    <StatsContainer>
-      <StatsTitle>Usage Statistics</StatsTitle>
-
-      <SubTitle><Hash size={16} /> Usage</SubTitle>
-      <StatItem>
-        <StatLabel>Input Tokens:</StatLabel>
-        <StatValue>{formatTokensOrCost(usage.total_input || 0)}</StatValue>
-      </StatItem>
-      <StatItem>
-        <StatLabel>Output Tokens:</StatLabel>
-        <StatValue>{formatTokensOrCost(usage.total_output || 0)}</StatValue>
-      </StatItem>
-      <StatItem>
-        <StatLabel>Total Tokens:</StatLabel>
-        <StatValue>{formatTokensOrCost(usage.total_tokens || 0)}</StatValue>
-      </StatItem>
-
-      <Divider />
-
-      <SubTitle><DollarSign size={16} /> Costs</SubTitle>
-      <StatItem>
-        <StatLabel>Input Cost:</StatLabel>
-        <StatValue>{formatTokensOrCost(usage.total_input_cost || 0, true)}</StatValue>
-      </StatItem>
-      <StatItem>
-        <StatLabel>Output Cost:</StatLabel>
-        <StatValue>{formatTokensOrCost(usage.total_output_cost || 0, true)}</StatValue>
-      </StatItem>
-      <StatItem>
-        <StatLabel>Total Cost:</StatLabel>
-        <StatValue>{formatTokensOrCost(usage.total_cost || 0, true)}</StatValue>
-      </StatItem>
-    </StatsContainer>
+    <div className="h-full bg-white p-4">
+      <div className="overflow-hidden rounded-lg bg-white shadow">
+        <div className="px-4 py-5 sm:p-6">
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center space-x-2">
+              <BookOpenIcon className="h-5 w-5 text-oxford-blue" />
+              <h3 className="text-base font-semibold leading-6 text-oxford-blue">Total Tokens</h3>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-pale-sky">Total Tokens:</span>
+              <span className="font-semibold text-oxford-blue">{formatTokensOrCost(usage.total_tokens || 0)}</span>
+            </div>
+          </div>
+          <div className="flex flex-col space-y-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <CurrencyDollarIcon className="h-5 w-5 text-oxford-blue" />
+              <h3 className="text-base font-semibold leading-6 text-oxford-blue">Total Cost</h3>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-pale-sky">Total Cost:</span>
+              <span className="font-semibold text-oxford-blue">{formatTokensOrCost(usage.total_cost || 0, true)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

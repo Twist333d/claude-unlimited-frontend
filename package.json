@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@heroicons/react": "^2.1.5",
+    "@tailwindui/react": "^0.1.1",
     "axios": "^1.7.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.399.0",
