@@ -49,35 +49,24 @@
     @apply bg-gray-100;
   }
 
-  /* Override the existing styles for pre and code elements */
-  pre:not([class*="language-"]) {
-    @apply p-4 overflow-auto text-sm leading-relaxed bg-gray-100 rounded;
-  }
-
+  /* Inline code */
   code:not([class*="language-"]) {
-    @apply p-1 text-sm bg-gray-200 rounded;
+    @apply font-mono text-sm bg-gray-200 text-blue-600 rounded px-1.5 py-0.5 border border-gray-200;
   }
-}
 
-/* Inline Code */
-code:not([class*="language-"]) {
-  @apply text-gray-600 bg-gray-100 rounded px-1 py-0.5;
-}
+  /* Code blocks */
+  pre {
+    @apply p-4 rounded-md bg-zinc-800 text-gray-800 overflow-x-auto border border-gray-200;
+  }
 
-/* Code Blocks */
-pre[class*="language-"] {
-  @apply rounded-md p-4 bg-gray-900 text-gray-300 overflow-auto;
-}
+  pre code {
+    @apply font-mono text-sm bg-transparent p-0 border-0;
+  }
 
-pre[class*="language-"] code {
-  @apply bg-transparent !important;
-}
-
-.code-block pre {
-  background-color: transparent !important;
-  padding: 0 !important;
-}
-
-.code-block code {
-  background-color: transparent !important;
+  /* Basic syntax highlighting */
+  .token.comment { @apply text-gray-500 italic; }
+  .token.keyword { @apply text-purple-600 font-semibold; }
+  .token.string { @apply text-green-600; }
+  .token.number { @apply text-orange-600; }
+  .token.function { @apply text-blue-600; }
 }
