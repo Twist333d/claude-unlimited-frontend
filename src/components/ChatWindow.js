@@ -99,12 +99,15 @@ function ChatWindow({ messages, isLoading, onSend, loadMoreMessages }) {
     },
   }), [handleCopyCode, copiedCode]);
 
-  const MessageComponent = useMemo(() => React.memo(({ index, style }) => {
+const MessageComponent = useMemo(() => React.memo(({ index, style }) => {
     const message = messages[index];
-    if (!message) return null; // Add this check
+    if (!message) return null;
     return (
       <div
-        style={style}
+        style={{
+          ...style,
+          top: `${parseFloat(style.top) + 16}px`, // Add padding between messages
+        }}
         className={`p-4 ${
           message.role === 'user'
             ? 'text-right'
@@ -130,43 +133,43 @@ function ChatWindow({ messages, isLoading, onSend, loadMoreMessages }) {
     );
   }), [messages, markdownComponents]);
 
+
+
   const itemCount = messages.length;
+  const itemSize = 150; // Increased item size to accommodate padding
   const loadMoreItems = useCallback((startIndex, stopIndex) => {
     return loadMoreMessages(startIndex, stopIndex);
   }, [loadMoreMessages]);
 
-  const isItemLoaded = useCallback(index => index < messages.length, [messages.length]);
+    const isItemLoaded = useCallback(index => index < messages.length, [messages.length]);
 
-  return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto p-6 bg-porcelain text-oxford-blue"> {/* Increased max-width */}
-      <div className="flex-1 overflow-hidden w-full max-w-3xl mx-auto"> {/* Added max-width for conversation area */}
-        <AutoSizer>
-          {({ height, width }) => (
-            <InfiniteLoader
-              isItemLoaded={isItemLoaded}
-              itemCount={itemCount}
-              loadMoreItems={loadMoreMessages}
-            >
-              {({ onItemsRendered, ref }) => (
-                <List
-                  ref={(list) => {
-                    ref(list);
-                    listRef.current = list;
-                  }}
-                  height={height}
-                  itemCount={itemCount}
-                  itemSize={100}
-                  onItemsRendered={onItemsRendered}
-                  width={width}
-                  onScroll={handleScroll}
-                >
-                  {MessageComponent}
-                </List>
-              )}
-            </InfiniteLoader>
-          )}
-        </AutoSizer>
-      </div>
+      return (
+      <div className="flex flex-col h-full w-full max-w-4xl mx-auto p-6 bg-porcelain text-oxford-blue">
+        <div className="flex-1 overflow-hidden w-full">
+          <AutoSizer>
+            {({ height, width }) => (
+              <InfiniteLoader
+                isItemLoaded={isItemLoaded}
+                itemCount={messages.length + 1}
+                loadMoreItems={loadMoreMessages}
+              >
+                {({ onItemsRendered, ref }) => (
+                  <List
+                    ref={ref}
+                    height={height}
+                    itemCount={messages.length}
+                    itemSize={itemSize}
+                    onItemsRendered={onItemsRendered}
+                    width={width}
+                    onScroll={handleScroll}
+                  >
+                    {MessageComponent}
+                  </List>
+                )}
+              </InfiniteLoader>
+            )}
+          </AutoSizer>
+        </div>
       {isLoading && (
         <div className="rounded-lg p-4 mb-4 self-start bg-light-gray">
           Thinking...

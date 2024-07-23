@@ -68,6 +68,18 @@ function App() {
   []
 );
 
+const loadMoreMessages = useCallback(async (startIndex, stopIndex) => {
+  if (!currentConversationId) return;
+  try {
+    const response = await axios.get(`${config.apiUrl}/conversations/${currentConversationId}/messages`, {
+      params: { start: startIndex, limit: stopIndex - startIndex }
+    });
+    setMessages(prevMessages => [...response.data.reverse(), ...prevMessages]);
+  } catch (error) {
+    console.error('Error loading more messages:', error);
+  }
+}, [currentConversationId]);
+
   const fetchUsage = useCallback(
     debounce(async (conversationId) => {
       try {
@@ -123,8 +135,10 @@ function App() {
       messages={messages}
       isLoading={isLoading}
       onSend={handleSend}
+      loadMoreMessages={loadMoreMessages}
+
     />
-  ), [messages, isLoading, handleSend]);
+  ), [messages, isLoading, handleSend, loadMoreMessages]);
 
   const memoizedConversationList = useMemo(() => (
     <ConversationList
@@ -140,52 +154,55 @@ function App() {
   ), [usage, rightSidebarCollapsed]);
 
   return (
-    <div className="relative flex h-screen bg-porcelain text-oxford-blue">
-      <div className="fixed top-0 left-0 bottom-0 w-10 z-50 bg-transparent">
-        <button
-          className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 transition"
-          onClick={toggleLeftSidebar}
+      <div className="relative flex h-screen bg-porcelain text-oxford-blue">
+        <div className="fixed top-0 left-0 bottom-0 w-10 z-50 bg-transparent">
+          <button
+              className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 transition"
+              onClick={toggleLeftSidebar}
+          >
+            {leftSidebarCollapsed ? <ChevronRightIcon className="h-6 w-6"/> : <ChevronLeftIcon className="h-6 w-6"/>}
+          </button>
+        </div>
+        <div
+            className={`fixed top-0 left-0 h-screen transition-all duration-300 ${
+                leftSidebarCollapsed
+                    ? 'w-16 -translate-x-[190px]'
+                    : 'w-72 translate-x-0 bg-white border-r border-gray-300 shadow-md z-40'
+            }`}
         >
-          {leftSidebarCollapsed ? <ChevronRightIcon className="h-6 w-6" /> : <ChevronLeftIcon className="h-6 w-6" />}
-        </button>
-      </div>
-      <div
-        className={`fixed top-0 left-0 h-screen transition-all duration-300 ${
-          leftSidebarCollapsed
-            ? 'w-16 -translate-x-[190px]'
-            : 'w-72 translate-x-0 bg-white border-r border-gray-300 shadow-md z-40'
-        }`}
-      >
-        {!leftSidebarCollapsed && (
-          <>
-            <button
-              className="flex items-center justify-center bg-fountain-blue text-white rounded-md px-4 py-2 m-4 transition hover:bg-bali-hai"
-              onClick={startNewConversation}
-            >
-              <PlusCircleIcon className="h-6 w-6 mr-2" />
-              New Conversation
-            </button>
-            {memoizedConversationList}
-          </>
-        )}
-      </div>
-      <main className={`flex-1 flex justify-center overflow-y-auto ${leftSidebarCollapsed ? 'ml-16' : 'ml-72'} ${rightSidebarCollapsed ? 'mr-0' : 'mr-72'}`}>
-        {memoizedChatWindow}
-      </main>
-      <div
-        className={`fixed top-0 right-0 h-screen transition-all duration-300 ${
-          rightSidebarCollapsed ? 'w-0' : 'w-72 bg-white border-l border-gray-300 shadow-md z-40'
-        }`}
-      >
-        <button
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition"
-          onClick={toggleRightSidebar}
+          {!leftSidebarCollapsed && (
+              <>
+                <button
+                    className="flex items-center justify-center bg-fountain-blue text-white rounded-md px-4 py-2 m-4 transition hover:bg-bali-hai"
+                    onClick={startNewConversation}
+                >
+                  <PlusCircleIcon className="h-6 w-6 mr-2"/>
+                  New Conversation
+                </button>
+                {memoizedConversationList}
+              </>
+          )}
+        </div>
+          <main
+              className={`flex-1 flex justify-center overflow-y-auto ${leftSidebarCollapsed ? 'ml-16' : 'ml-72'} ${rightSidebarCollapsed ? 'mr-0' : 'mr-72'}`}>
+            <div className="w-full max-w-4xl px-4">
+              {memoizedChatWindow}
+            </div>
+          </main>
+        <div
+            className={`fixed top-0 right-0 h-screen transition-all duration-300 ${
+                rightSidebarCollapsed ? 'w-0' : 'w-72 bg-white border-l border-gray-300 shadow-md z-40'
+            }`}
         >
-          {rightSidebarCollapsed ? <ChevronLeftIcon className="h-6 w-6" /> : <ChevronRightIcon className="h-6 w-6" />}
-        </button>
-        {memoizedUsageStats}
+          <button
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition"
+              onClick={toggleRightSidebar}
+          >
+            {rightSidebarCollapsed ? <ChevronLeftIcon className="h-6 w-6"/> : <ChevronRightIcon className="h-6 w-6"/>}
+          </button>
+          {memoizedUsageStats}
+        </div>
       </div>
-    </div>
   );
 }
 
