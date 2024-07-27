@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Message({ content, sender }) {
+const Message = React.memo(function Message({ content, sender }) {
   return (
     <div
       className={`p-2 rounded-lg font-serif max-w-[80%] break-words ${
@@ -12,6 +12,6 @@ function Message({ content, sender }) {
       {content}
     </div>
   );
-}
+});
 
 export default Message;

@@ -1,25 +1,36 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useCallback} from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { debounce } from 'lodash';
+
 
 function MessageInput({ onSendMessage }) {
   const [inputText, setInputText] = useState('');
   const textareaRef = useRef(null);
 
+  const debouncedResize = useCallback(
+    debounce(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 7 * 24)}px`;
+      }
+    }, 100),
+    []
+  );
 
-  useEffect(() => {
-  if (textareaRef.current) {
-    textareaRef.current.style.height = 'auto';
-    textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 7 * 24)}px`;
-  }
-}, [inputText]);
+  const handleInputChange = useCallback((e) => {
+    setInputText(e.target.value);
+    debouncedResize();
+  }, [debouncedResize]);
 
-
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (inputText.trim()) {
       onSendMessage(inputText);
       setInputText('');
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
-  };
+  }, [inputText, onSendMessage]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -37,7 +48,7 @@ function MessageInput({ onSendMessage }) {
           placeholder="How can I help you today?"
           rows="2"
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          onChange={handleInputChange}
           onKeyPress={handleKeyPress}
         />
         <div className= "sticky top-0">
@@ -52,5 +63,5 @@ function MessageInput({ onSendMessage }) {
     </div>
   );
 }
+export default React.memo(MessageInput);
 
-export default MessageInput;
