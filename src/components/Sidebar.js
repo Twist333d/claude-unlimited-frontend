@@ -1,21 +1,29 @@
 import React, { memo } from 'react';
 import { ChatBubbleBottomCenterIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatDistanceToNow } from 'date-fns';
+import { getRelativeTimeString } from '../utils/timeFormatting';
 
 
+
+// With this line
 function Sidebar({ sidebarOpen, setSidebarOpen, conversations, currentConversationId, setCurrentConversationId, startNewConversation }) {
+    const handleConversationClick = (id) => {
+  setCurrentConversationId(id);
+
+  const truncateMessage = (message, maxLength) => {
+  if (message.length <= maxLength) return message;
+  return `${message.substring(0, maxLength)}...`;
+};
+};
   return (
     <div className="flex h-full flex-col bg-white rounded-lg shadow-md">
-      <div className="items-center bg-slate-200 py-2">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-full"
-        >
-          {sidebarOpen ? <ChevronLeftIcon className="h-5 w-5" /> : <ChevronRightIcon className="h-5 w-5" />}
-        </button>
-      </div>
-      {sidebarOpen && (
-        <div className="w-64 overflow-hidden">
+        <div className="items-center bg-slate-200 py-2">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-full">
+                {sidebarOpen ? <ChevronLeftIcon className="h-5 w-5"/> : <ChevronRightIcon className="h-5 w-5"/>}
+            </button>
+        </div>
+        {sidebarOpen && (
+            <div className="w-64 overflow-hidden">
           <div className="px-4 py-2">
             <button
               onClick={startNewConversation}
