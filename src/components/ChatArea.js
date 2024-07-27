@@ -2,6 +2,8 @@ import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import MessageInput from './MessageInput';
 import Message from './Message';
 import axios from "axios";
+import config from '../config'; // Import the config object
+
 
 function ChatArea({ currentConversationId }) {
   const [messages, setMessages] = useState([]);
@@ -9,7 +11,7 @@ function ChatArea({ currentConversationId }) {
   // Use useCallback to memoize the fetchMessages function
   const fetchMessages = useCallback(async (conversationId) => {
     try {
-      const response = await axios.get(`/api/conversations/${conversationId}/messages`);
+      const response = await axios.get(`${config.apiUrl}/conversations/${conversationId}/messages`); // Use config.apiUrl
       setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -31,7 +33,7 @@ function ChatArea({ currentConversationId }) {
     setMessages(prevMessages => [...prevMessages, newMessage]);
 
     try {
-      const response = await axios.post('/api/chat', {
+      const response = await axios.post(`${config.apiUrl}/chat`, { // Use config.apiUrl
         conversation_id: currentConversationId,
         messages: [content]
       });
@@ -47,14 +49,14 @@ function ChatArea({ currentConversationId }) {
 
     // Use useMemo to memoize the rendered messages
   const memoizedMessages = useMemo(() =>
-    messages.map((message) => (
-      <Message key={message.id} content={message.content} sender={message.sender} />
-    )),
-    [messages]
-  );
+  messages.map((message, index) => (
+    <Message key={index} content={message.content} sender={message.sender} />
+  )),
+  [messages]
+);
 
   return (
-    <div className="h-full flex flex-col max-w-3xl mx-auto border-x-2 border-sm" >
+    <div className="h-full flex flex-col max-w-3xl mx-auto" >
       <div className="flex-1 overflow-x-auto p-4 space-y-4">
         {memoizedMessages}
       </div>

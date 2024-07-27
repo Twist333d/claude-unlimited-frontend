@@ -1,12 +1,28 @@
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
+import axios from "axios";
+import config from './config'; // Import the config object
+
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
+
+    const fetchConversations = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/conversations');
+      setConversations(response.data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
 
 
   const toggleSidebar = useCallback(() => {
@@ -17,10 +33,15 @@ function App() {
     setCurrentConversationId(id);
   }, []);
 
-  const startNewConversation = useCallback(() => {
-    const newId = Date.now().toString();
-    setConversations(prev => [...prev, { id: newId, name: `New Chat ${prev.length + 1}` }]);
-    setCurrentConversationId(newId);
+  const startNewConversation = useCallback(async () => {
+    try {
+      const response = await axios.post(`${config.apiUrl}/conversations`); //${config.apiUrl}/chat`
+      const newConversation = response.data;
+      setConversations(prev => [newConversation, ...prev]);
+      setCurrentConversationId(newConversation.id);
+    } catch (error) {
+      console.error('Error starting new conversation:', error);
+    }
   }, []);
 
   return (
@@ -29,7 +50,7 @@ function App() {
         <div className="flex-1 flex overflow-hidden">
           <Sidebar
               sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
+              setSidebarOpen={toggleSidebar}
               conversations={conversations}
               currentConversationId={currentConversationId}
               setCurrentConversationId={setCurrentConversationId}
