@@ -3,7 +3,7 @@ import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import { debounce } from 'lodash';
 
 
-function MessageInput({ onSendMessage }) {
+function MessageInput({ onSendMessage, isDisabled }) {
   const [inputText, setInputText] = useState('');
   const textareaRef = useRef(null);
 
@@ -23,14 +23,14 @@ function MessageInput({ onSendMessage }) {
   }, [debouncedResize]);
 
   const handleSend = useCallback(() => {
-    if (inputText.trim()) {
+    if (inputText.trim() && !isDisabled) {
       onSendMessage(inputText);
       setInputText('');
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
     }
-  }, [inputText, onSendMessage]);
+  }, [inputText, onSendMessage, isDisabled]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -54,9 +54,14 @@ function MessageInput({ onSendMessage }) {
         <div className= "sticky top-0">
         <button
           onClick={handleSend}
-          className="bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          disabled={isDisabled || !inputText.trim()}
+          className={`text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+              isDisabled || !inputText.trim()
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
         >
-          <PaperAirplaneIcon className="h-5 w-5" aria-hidden="true" />
+          <PaperAirplaneIcon className="h-5 w-5 transform -rotate-90" aria-hidden="true" />
         </button>
         </div>
       </div>

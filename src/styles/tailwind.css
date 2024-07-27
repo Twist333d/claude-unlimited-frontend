@@ -4,6 +4,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Roboto:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
 
 @layer base {
   body {
@@ -67,6 +68,15 @@
 
   blockquote {
     @apply py-2 px-4 bg-gray-100 text-gray-800 border-l-4 border-slate-400 rounded-md shadow-md italic;
+  }
+
+
+  .logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4F46E5;
+    letter-spacing: -0.05em;
   }
 
   table {
