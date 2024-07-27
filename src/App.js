@@ -80,6 +80,7 @@ const updateConversation = useCallback((conversationId, newMessage, newTokens, n
         sidebarOpen={sidebarOpen}
         toggleSidebar={toggleSidebar}
         usage={usage}
+        setSidebarOpen={setSidebarOpen} // Pass the setSidebarOpen function
       />
         <div className="flex-1 flex overflow-hidden">
           <Sidebar

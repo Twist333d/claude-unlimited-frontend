@@ -3,12 +3,16 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { formatTokensOrCost } from '../utils/numberFormatting';
 
 function Header({ sidebarOpen, setSidebarOpen, usage }) {
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <header className="bg-white border-0 border-black shadow-sm z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onClick={toggleSidebar}
               className="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
           >
             {sidebarOpen ? (
