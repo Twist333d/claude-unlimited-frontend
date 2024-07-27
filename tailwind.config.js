@@ -1,77 +1,46 @@
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/styles/tailwind.css", // Add this line
     "./src/**/*.css",
   ],
   theme: {
     extend: {
-      colors: {
-        'porcelain': '#F5F6F7',
-        'bali-hai': '#779EAD',
-        'fountain-blue': '#61AEC4',
-        'pale-sky': '#6F7681',
-        'oxford-blue': '#313947',
-        'white': '#FFFFFF',
-        'black': '#000000',
-        'light-gray': '#F0F0F0',
-        'chat-background': '#F9F9F9',
-        'user-message-background': '#E6E6E6',
+      spacing: {
+        'xs': '0.25rem',
+        'sm': '0.5rem',
+        'md': '1rem',
+        'lg': '1.5rem',
+        'xl': '2rem',
       },
-      maxWidth: {
-        'chat-container': '896px',
-        'chat-messages': '768px',
-      },
+
       fontFamily: {
         'sans': ['Roboto', 'sans-serif'],
         'serif': ['Merriweather', 'serif'],
       },
+
+      borderWidth: {
+        'small': '0.5px',
+        'standard': '1px',
+        'thick': '2px',
+      },
+
       fontSize: {
-        'xs': '12px',
-        'sm': '14px',
-        'md': '16px',
-        'lg': '18px',
-        'xl': '20px',
-        '2xl': '24px',
+        'xs': '0.75rem',
+        'sm': '0.875rem',
+        'base': '1rem',
+        'lg': '1.125rem',
+        'xl': '1.25rem',
       },
-      fontWeight: {
-        'normal': 400,
-        'medium': 500,
-        'semibold': 600,
-        'bold': 700,
-      },
-      spacing: {
-        'xs': '4px',
-        'sm': '8px',
-        'md': '16px',
-        'lg': '24px',
-        'xl': '32px',
-      },
-      borderRadius: {
-        'sm': '4px',
-        'md': '8px',
-        'lg': '16px',
-        'full': '9999px',
+      maxWidth: {
+        'container': '64rem',
       },
       boxShadow: {
         'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-      },
-      screens: {
-        'sm': '640px',
-        'md': '768px',
-        'lg': '1024px',
-        'xl': '1280px',
-        '2xl': '1536px',
-      },
-      zIndex: {
-        'behind': -1,
-        'default': 0,
-        'dropdown': 1000,
-        'sticky': 1100,
-        'modal': 1300,
-        'popover': 1400,
-        'tooltip': 1500,
       },
       transitionDuration: {
         'fast': '150ms',
@@ -83,5 +52,19 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+      require('@tailwindcss/forms'),
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.scrollbar-hide': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      }
+      addUtilities(newUtilities, ['responsive', 'hover'])
+    }
+  ],
 }
