@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MessageInput from './MessageInput';
+import Message from './Message';
 import axios from "axios";
 
 function ChatArea({ currentConversationId }) {
@@ -46,19 +47,10 @@ function ChatArea({ currentConversationId }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50 max-w-3xl mx-auto" >
-      <div className="flex-1 overflow-y-auto overflow-x-auto p-4 space-y-4">
+    <div className="h-full flex flex-col max-w-3xl mx-auto border-x-2 border-sm" >
+      <div className="flex-1 overflow-x-auto p-4 space-y-4">
         {messages.map((message) => (
-            <div
-                key={message.id}
-                className={`p-3 rounded-lg font-serif max-w-[80%] break-words ${
-                    message.sender === 'user' 
-                        ? 'bg-blue-100 ml-auto border-0 border-gray-500' 
-                        : 'bg-blue-200 ml-auto border-2 border-gray-500'
-                }`}
-            >
-                {message.content}
-            </div>
+            <Message key={message.id} content={message.content} sender={message.sender} />
         ))}
       </div>
         <MessageInput onSendMessage={addMessage}/>

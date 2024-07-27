@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -6,17 +8,34 @@ module.exports = {
   ],
   theme: {
     extend: {
+      spacing: {
+        'xs': '0.25rem',
+        'sm': '0.5rem',
+        'md': '1rem',
+        'lg': '1.5rem',
+        'xl': '2rem',
+      },
+
       fontFamily: {
         'sans': ['Roboto', 'sans-serif'],
         'serif': ['Merriweather', 'serif'],
       },
+
+      borderWidth: {
+        'small': '0.5px',
+        'standard': '1px',
+        'thick': '2px',
+      },
+
       fontSize: {
         'xs': '0.75rem',
         'sm': '0.875rem',
-        'base': '0.9375rem',
+        'base': '1rem',
         'lg': '1.125rem',
         'xl': '1.25rem',
-        '2xl': '1.5rem',
+      },
+      maxWidth: {
+        'container': '64rem',
       },
       boxShadow: {
         'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
@@ -33,5 +52,19 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+      require('@tailwindcss/forms'),
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.scrollbar-hide': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      }
+      addUtilities(newUtilities, ['responsive', 'hover'])
+    }
+  ],
 }

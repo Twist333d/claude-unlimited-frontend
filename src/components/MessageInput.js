@@ -33,7 +33,7 @@ function MessageInput({ onSendMessage }) {
       <div className="max-w-4xl mx-auto flex items-end space-x-4 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
         <textarea
           ref={textareaRef}
-          className="font-serif flex-1 resize-none border-0 bg-transparent p-2 focus:outline-none focus:ring-0 max-h-40 overflow-y-auto"
+          className="font-serif flex-1 resize-none border-0 bg-transparent p-2 focus:outline-none focus:ring-0  max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
           placeholder="How can I help you today?"
           rows="2"
           value={inputText}
