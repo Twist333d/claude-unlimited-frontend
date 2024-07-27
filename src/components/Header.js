@@ -16,11 +16,11 @@ function Header({ sidebarOpen, setSidebarOpen }) {
               <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             )}
           </button>
-          <img className="h-8 w-auto" src="/logo.svg" alt="Your Company" />
+          <img className="h-8 w-auto" src="/logo.svg" alt="Claude Unlimited" />
         </div>
         <div className="flex items-center space-x-4">
           <span className="text-sm text-gray-500">API Token: ********</span>
-          <span className="text-sm text-gray-500">Usage: 1000 tokens</span>
+          <span className="text-sm text-gray-500">Usage: $ USD | X tokens</span>
           <div className="relative">
             <img
               className="h-8 w-8 rounded-full"

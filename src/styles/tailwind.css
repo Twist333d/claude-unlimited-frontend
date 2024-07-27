@@ -7,7 +7,7 @@
 
 @layer base {
   body {
-    @apply font-sans text-base font-normal leading-relaxed text-oxford-blue bg-porcelain m-0 p-0;
+    @apply font-serif text-base font-normal leading-relaxed text-oxford-blue bg-porcelain m-0 p-0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -61,7 +61,7 @@
   }
 
   button, input {
-    @apply font-inherit text-inherit;
+    @apply font-sans text-inherit;
   }
 
   :focus {
