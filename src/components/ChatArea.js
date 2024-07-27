@@ -4,10 +4,12 @@ import Message from './Message';
 import axios from "axios";
 import config from '../config'; // Import the config object
 import LoadingIndicator from './LoadingIndicator';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 
 
 
-function ChatArea({ currentConversationId }) {
+
+function ChatArea({ currentConversationId, updateConversation }) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,12 +39,18 @@ function ChatArea({ currentConversationId }) {
     setMessages(prevMessages => [...prevMessages, newMessage]);
     setIsLoading(true);
 
-
     try {
       const response = await axios.post(`${config.apiUrl}/chat`, { // Use config.apiUrl
         conversation_id: currentConversationId,
         messages: [content]
       });
+
+      updateConversation(
+        currentConversationId,
+        content,
+        response.data.total_tokens,
+        response.data.total_cost
+      );
 
       setMessages(prevMessages => [
         ...prevMessages,
@@ -50,8 +58,10 @@ function ChatArea({ currentConversationId }) {
       ]);
     } catch (error) {
       console.error('Error sending message:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [currentConversationId]); // Dependency on currentConversationId
+   }, [currentConversationId, updateConversation]); // Dependency on currentConversationId
 
     // Use useMemo to memoize the rendered messages
   const memoizedMessages = useMemo(() =>
@@ -64,9 +74,17 @@ function ChatArea({ currentConversationId }) {
   return (
     <div className="h-full flex flex-col max-w-3xl mx-auto" >
       <div className="flex-1 overflow-x-auto p-4 space-y-4">
-        {memoizedMessages}
+            {messages.length === 0 ? (
+      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+        <ChatBubbleLeftEllipsisIcon className="h-24 w-24 mb-4" />
+        <p className="text-xl">No messages yet</p>
       </div>
-        <MessageInput onSendMessage={addMessage}/>
+    ) : (
+      memoizedMessages
+    )}
+      </div>
+        {isLoading && <LoadingIndicator />}
+        <MessageInput onSendMessage={addMessage} isDisabled={isLoading} />
     </div>
   );
 }

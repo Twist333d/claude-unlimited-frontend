@@ -10,15 +10,24 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
+  const [usage, setUsage] = useState({ tokens: 0, cost: 0 });
+
 
     const fetchConversations = useCallback(async () => {
     try {
-      const response = await axios.get('/api/conversations');
+      const response = await axios.get(`${config.apiUrl}/conversations`);
       setConversations(response.data);
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }
   }, []);
+
+    const updateUsage = useCallback((newTokens, newCost) => {
+  setUsage(prev => ({
+    tokens: prev.tokens + newTokens,
+    cost: prev.cost + newCost
+  }));
+}, []);
 
   useEffect(() => {
     fetchConversations();
@@ -32,6 +41,7 @@ function App() {
   const selectConversation = useCallback((id) => {
     setCurrentConversationId(id);
   }, []);
+
 
   const startNewConversation = useCallback(async () => {
   try {
@@ -48,9 +58,29 @@ function App() {
   }
 }, []);
 
+const updateConversation = useCallback((conversationId, newMessage, newTokens, newCost) => {
+  setConversations(prevConversations =>
+    prevConversations.map(conv =>
+      conv.id === conversationId
+        ? {
+            ...conv,
+            first_message: conv.first_message || newMessage,
+            last_message: newMessage,
+            last_message_time: new Date().toISOString()
+          }
+        : conv
+    )
+  );
+  updateUsage(newTokens, newCost);
+}, [updateUsage]);
+
   return (
       <div className="h-screen flex flex-col bg-gray-50">
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              <Header
+        sidebarOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        usage={usage}
+      />
         <div className="flex-1 flex overflow-hidden">
           <Sidebar
               sidebarOpen={sidebarOpen}
@@ -62,7 +92,11 @@ function App() {
               selectConversation={selectConversation} // Pass the selectConversation function
           />
           <main className="flex-1 overflow-y-auto">
-          <ChatArea currentConversationId={currentConversationId}/>
+          <ChatArea
+              currentConversationId={currentConversationId}
+              updateConversation={updateConversation}
+
+          />
           </main>
         </div>
       </div>
