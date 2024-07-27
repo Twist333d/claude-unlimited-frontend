@@ -7,6 +7,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const startNewConversation = () => {
     const newId = Date.now().toString();
@@ -24,6 +25,8 @@ function App() {
           currentConversationId={currentConversationId}
           setCurrentConversationId={setCurrentConversationId}
           startNewConversation={startNewConversation}
+          isCollapsed={sidebarCollapsed}
+          setIsCollapsed={setSidebarCollapsed}
         />
         <ChatArea currentConversationId={currentConversationId} />
       </div>

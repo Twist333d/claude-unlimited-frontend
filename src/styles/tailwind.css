@@ -7,11 +7,10 @@
 
 @layer base {
   body {
-    @apply font-serif text-base font-normal leading-relaxed text-oxford-blue bg-porcelain m-0 p-0;
+    @apply font-serif text-base  leading-relaxed m-0 p-0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
   * {
     @apply box-border;
   }

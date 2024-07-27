@@ -40,12 +40,14 @@ function MessageInput({ onSendMessage }) {
           onChange={(e) => setInputText(e.target.value)}
           onKeyPress={handleKeyPress}
         />
+        <div className= "sticky top-0">
         <button
           onClick={handleSend}
           className="bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <PaperAirplaneIcon className="h-5 w-5" aria-hidden="true" />
         </button>
+        </div>
       </div>
     </div>
   );
