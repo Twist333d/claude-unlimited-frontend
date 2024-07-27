@@ -3,10 +3,14 @@ import MessageInput from './MessageInput';
 import Message from './Message';
 import axios from "axios";
 import config from '../config'; // Import the config object
+import LoadingIndicator from './LoadingIndicator';
+
 
 
 function ChatArea({ currentConversationId }) {
   const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   // Use useCallback to memoize the fetchMessages function
   const fetchMessages = useCallback(async (conversationId) => {
@@ -31,6 +35,8 @@ function ChatArea({ currentConversationId }) {
   const addMessage = useCallback(async (content) => {
     const newMessage = { content, sender: 'user' };
     setMessages(prevMessages => [...prevMessages, newMessage]);
+    setIsLoading(true);
+
 
     try {
       const response = await axios.post(`${config.apiUrl}/chat`, { // Use config.apiUrl

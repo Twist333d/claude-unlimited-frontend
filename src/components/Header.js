@@ -7,20 +7,21 @@ function Header({ sidebarOpen, setSidebarOpen }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
           >
             {sidebarOpen ? (
-              <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                <XMarkIcon className="h-6 w-6" aria-hidden="true"/>
             ) : (
-              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                <Bars3Icon className="h-6 w-6" aria-hidden="true"/>
             )}
           </button>
-          <img className="h-8 w-auto" src="/logo.svg" alt="Claude Unlimited" />
+          <span className="text-2xl mr-2" role="img" aria-label="Robot">🤖</span>
+          <span className="text-xl font-bold">Claude Unlimited</span>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-500">API Token: ********</span>
-          <span className="text-sm text-gray-500">Usage: $ USD | X tokens</span>
+        <span className="text-sm font-bold text-gray-500">API Token: ********</span>
+          <span className="text-sm font-bold text-gray-500">Usage: $ USD | X tokens</span>
           <div className="relative">
             <img
               className="h-8 w-8 rounded-full"
