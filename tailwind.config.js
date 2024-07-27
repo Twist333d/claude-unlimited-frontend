@@ -1,6 +1,7 @@
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/styles/tailwind.css", // Add this line
     "./src/**/*.css",
   ],
   theme: {
