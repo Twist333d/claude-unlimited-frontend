@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import { ChatBubbleBottomCenterIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { formatDistanceToNow } from 'date-fns';
 import { getRelativeTimeString } from '../utils/timeFormatting';
 
 

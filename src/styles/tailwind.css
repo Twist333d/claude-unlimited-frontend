@@ -105,7 +105,7 @@
   }
 
   pre {
-    @apply p-4 rounded-lg text-white bg-slate-900 overflow-x-auto;
+    @apply p-4 rounded-lg text-white overflow-x-auto;
   }
 }
 

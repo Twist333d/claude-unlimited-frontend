@@ -17,6 +17,10 @@ function MessageInput({ onSendMessage, isDisabled }) {
     []
   );
 
+  useEffect(() => {
+  console.log('MessageInput rendered', textareaRef.current);
+}, []);
+
   const handleInputChange = useCallback((e) => {
     setInputText(e.target.value);
     debouncedResize();
@@ -40,28 +44,28 @@ function MessageInput({ onSendMessage, isDisabled }) {
   };
 
   return (
-    <div className="bg-transparent p-4 sticky bottom-0">
-      <div className="max-w-4xl mx-auto flex items-end space-x-4 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+    <div className="message-input-container bg-transparent p-4 sticky bottom-0">
+      <div className="message-input-inter-container max-w-4xl mx-auto flex items-end space-x-4 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
         <textarea
           ref={textareaRef}
-          className="font-serif flex-1 resize-none border-0 bg-transparent p-2 focus:outline-none focus:ring-0  max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+          className="message-input-text-area font-serif flex-1 resize-none border-0 bg-transparent p-2 focus:outline-none focus:ring-0  max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
           placeholder="How can I help you today?"
           rows="2"
           value={inputText}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
         />
-        <div className= "sticky top-0">
+        <div className= "message-input-button sticky top-0">
         <button
           onClick={handleSend}
           disabled={isDisabled || !inputText.trim()}
-          className={`text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+          className={`send-button text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
               isDisabled || !inputText.trim()
                 ? 'bg-gray-300 cursor-not-allowed'
                 : 'bg-indigo-600 hover:bg-indigo-700'
             }`}
         >
-          <PaperAirplaneIcon className="h-5 w-5 transform -rotate-90" aria-hidden="true" />
+          <PaperAirplaneIcon className="send-button-icon h-5 w-5 transform -rotate-90" aria-hidden="true" />
         </button>
         </div>
       </div>
