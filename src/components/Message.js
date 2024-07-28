@@ -1,8 +1,12 @@
 import React from 'react';
 import MarkdownMessage from './MarkdownMessage';
+import ErrorBoundary from './ErrorBoundary';
+
 
 
 const Message = React.memo(function Message({ content, sender }) {
+    console.log('Message content:', content);
+
   return (
     <div
       className={`p-2 rounded-lg font-serif max-w-[80%] break-words shadow-md ${
@@ -11,7 +15,9 @@ const Message = React.memo(function Message({ content, sender }) {
           : 'bg-white border-1 border-gray-500 mr-auto'
       }`}
     >
-        <MarkdownMessage content={content} />
+        <ErrorBoundary>
+        <MarkdownMessage content={typeof content === 'string' ? content : JSON.stringify(content)} />
+        </ErrorBoundary>
     </div>
   );
 });

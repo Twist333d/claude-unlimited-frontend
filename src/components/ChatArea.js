@@ -5,6 +5,8 @@ import axios from "axios";
 import config from '../config'; // Import the config object
 import LoadingIndicator from './LoadingIndicator';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import ErrorBoundary from './ErrorBoundary';
+
 
 
 
@@ -77,14 +79,16 @@ function ChatArea({ currentConversationId, updateConversation }) {
             {messages.length === 0 ? (
       <div className="flex flex-col items-center justify-center h-full text-gray-400">
         <ChatBubbleLeftEllipsisIcon className="h-24 w-24 mb-4" />
-        <p className="text-xl">No messages yet</p>
+        <p className="text-xl">No messages yet...</p>
       </div>
     ) : (
       memoizedMessages
     )}
       </div>
         {isLoading && <LoadingIndicator />}
+        <ErrorBoundary>
         <MessageInput onSendMessage={addMessage} isDisabled={isLoading} />
+        </ErrorBoundary>
     </div>
   );
 }

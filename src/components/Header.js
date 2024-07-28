@@ -1,6 +1,8 @@
 import React from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { formatTokensOrCost } from '../utils/numberFormatting';
+import { CogIcon, CurrencyDollarIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+
 
 function Header({ sidebarOpen, setSidebarOpen, usage }) {
   const toggleSidebar = () => {
@@ -22,17 +24,24 @@ function Header({ sidebarOpen, setSidebarOpen, usage }) {
             )}
           </button>
           <span className="text-2xl mr-2" role="img" aria-label="Robot">🤖</span>
-          <span className="text-xl font-bold">Claude Unlimited</span>
+          <span className="logo">Claude Unlimited</span>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-bold ">API Token: ********</span>
-          <span className="text-sm font-bold">
-            Usage: {usage && usage.cost !== undefined ? formatTokensOrCost(usage.cost, true) : '0'} |
-            {usage && usage.tokens !== undefined ? formatTokensOrCost(usage.tokens) : '0'}
-          </span>
+          <div className="flex items-center text-sm font-bold">
+            <CogIcon className="h-5 w-5 mr-1" aria-hidden="true"/>
+            API: sk-***
+          </div>
+          <div className="flex items-center text-sm font-bold">
+            <CurrencyDollarIcon className="h-5 w-5 mr-1" aria-hidden="true"/>
+            Cost: {usage && usage.cost !== undefined ? formatTokensOrCost(usage.cost, true) + ' ' : '$0 '}
+          </div>
+          <div className="flex items-center text-sm font-bold">
+            <PencilSquareIcon className="h-5 w-5 mr-1" aria-hidden="true"/>
+            Tokens: {usage && usage.tokens !== undefined ? formatTokensOrCost(usage.tokens) + ' ' : '0 '}
+          </div>
           <div className="relative">
             <img
-                className="h-8 w-8 rounded-full"
+                className="h-8 w-8 rounded-full object-cover object-center"
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                 alt=""
             />
