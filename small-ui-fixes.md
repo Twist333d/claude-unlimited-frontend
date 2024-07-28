@@ -4,12 +4,13 @@
   - API -> cog
   - USD -> currency-dollar
   - Tokens -> pencil-square
-- remove blue blackground for the code block - DONE.
-- align the three dots animation with the messages container with padding. .
-- Move the send button up
-- Hide the sidebar completely (make it hidden) unless it's open on mobile
 - Use responsive font sizes for headers on mobile
-- the image is искажено when displayed on mobile
+- the image in the header is искажено when displayed on mobile
+- message input, if it receives React code it tries to render it (it shouldn't it). How to reproduce:
+-> copy and paste the source code for header component -> I see rendered header - ahahah. How to fix? Let's think first.
+- align the three dots animation with the messages container with padding. .
+- Hide the sidebar completely (make it hidden) unless it's open on mobile
+
 - the text input on mobile is below the URL bar on Safari. Can I make it always sticky at the bottom area? How would this impact the desktop?
 
 
