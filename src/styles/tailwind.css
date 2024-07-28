@@ -70,14 +70,11 @@
     @apply py-2 px-4 bg-gray-100 text-gray-800 border-l-4 border-slate-400 rounded-md shadow-md italic;
   }
 
-
+  @layer components {
   .logo {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: black;
-    letter-spacing: -0.05em;
+    @apply font-bold tracking-tight;
   }
+}
 
   table {
     @apply border-collapse w-full mb-4;

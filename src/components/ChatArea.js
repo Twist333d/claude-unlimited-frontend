@@ -85,7 +85,10 @@ function ChatArea({ currentConversationId, updateConversation }) {
       memoizedMessages
     )}
       </div>
-        {isLoading && <LoadingIndicator />}
+        {isLoading &&
+            (<div className="px-4 py-2 flex justify-start"> {/* Added flex and justify-start */}
+              <LoadingIndicator /> </div>
+        )}
         <ErrorBoundary>
         <MessageInput onSendMessage={addMessage} isDisabled={isLoading} />
         </ErrorBoundary>
