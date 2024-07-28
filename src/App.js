@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback, useEffect, memo} from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
@@ -11,6 +11,8 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [usage, setUsage] = useState({ tokens: 0, cost: 0 });
+  const MemoizedSidebar = memo(Sidebar);
+
 
 
     const fetchConversations = useCallback(async () => {
@@ -83,7 +85,7 @@ const updateConversation = useCallback((conversationId, newMessage, newTokens, n
         setSidebarOpen={setSidebarOpen} // Pass the setSidebarOpen function
       />
         <div className="flex-1 flex overflow-hidden">
-          <Sidebar
+          <MemoizedSidebar
               sidebarOpen={sidebarOpen}
               toggleSidebar={toggleSidebar}
               conversations={conversations}
