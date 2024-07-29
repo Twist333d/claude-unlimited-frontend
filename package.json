@@ -53,7 +53,8 @@
     "build:css": "tailwindcss build src/index.css -o src/tailwind.output.css",
     "test:all": "npm run test -- --watchAll=false && npm run cypress:run",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "prepare": "husky"
   },
   "eslintConfig": {
     "extends": [
