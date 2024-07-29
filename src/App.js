@@ -18,7 +18,8 @@ function App() {
     const fetchConversations = useCallback(async () => {
     try {
       const response = await axios.get(`${config.apiUrl}/conversations`);
-      setConversations(response.data);
+      setConversations(response.data)
+      ;
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }

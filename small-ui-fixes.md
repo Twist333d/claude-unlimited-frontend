@@ -1,6 +1,5 @@
-- message input, if it receives React code it tries to render it (it shouldn't it). How to reproduce:
--> copy and paste the source code for header component -> I see rendered header - ahahah. How to fix? Let's think first.
 - Hide the sidebar completely (make it hidden) unless it's open on mobile
+- how usage stats are calculated right now? They should be calculated globally for each user.
 
 - the text input on mobile is below the URL bar on Safari. Can I make it always sticky at the bottom area? How would this impact the desktop?
 

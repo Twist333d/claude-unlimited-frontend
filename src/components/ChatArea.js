@@ -74,7 +74,7 @@ function ChatArea({ currentConversationId, updateConversation }) {
 );
 
   return (
-    <div className="h-full flex flex-col max-w-3xl mx-auto" >
+    <div className="h-full flex flex-col max-w-5xl mx-auto" >
       <div className="flex-1 overflow-x-auto p-4 space-y-4">
             {messages.length === 0 ? (
       <div className="flex flex-col items-center justify-center h-full text-gray-400">
