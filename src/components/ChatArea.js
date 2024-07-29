@@ -86,7 +86,7 @@ function ChatArea({ currentConversationId, updateConversation }) {
     )}
       </div>
         {isLoading &&
-            (<div className="px-4 py-2 flex justify-start"> {/* Added flex and justify-start */}
+            (<div className="px-4 py-4 flex justify-center"> {/* Added flex and justify-start */}
               <LoadingIndicator /> </div>
         )}
         <ErrorBoundary>

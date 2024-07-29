@@ -48,7 +48,7 @@ function MessageInput({ onSendMessage, isDisabled }) {
       <div className="message-input-inter-container max-w-3xl mx-auto flex items-end space-x-4 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
         <textarea
           ref={textareaRef}
-          className="message-input-text-area font-serif flex-1 resize-none border-0 bg-transparent p-2 focus:outline-none focus:ring-0  max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+          className="message-input-text-area font-serif flex-1 resize-y border-0 bg-transparent p-2 focus:outline-none focus:ring-0 max-h-40 overflow-y-auto"
           placeholder="How can I help you today?"
           rows="2"
           value={inputText}
