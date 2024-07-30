@@ -1,16 +1,16 @@
 export const formatTokensOrCost = (value, isCost = false) => {
-  const unit = isCost ? '$' : '';
-  const suffix = isCost ? '' : ' tokens';
+  //const unit = isCost ? "$" : "";
+  const suffix = isCost ? "" : "";
 
   if (isCost) {
     if (value >= 1000000) {
-      return `${unit}${(value / 1000000).toFixed(2)}M`;
+      return `$${(value / 1000000).toFixed(2)}M`;
     } else if (value >= 1000) {
-      return `${unit}${(value / 1000).toFixed(2)}k`;
+      return `$${(value / 1000).toFixed(2)}k`;
     } else if (value >= 1) {
-      return `${unit}${value.toFixed(2)}`;
+      return `$${value.toFixed(1)}`; // Format as dollars with 2 decimal places
     } else {
-      return `${unit}${value.toFixed(4)}`;
+      return `$${value.toFixed(2)}`; // Format as dollars with 4 decimal places
     }
   } else {
     // For tokens, always use whole numbers

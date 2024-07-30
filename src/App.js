@@ -1,244 +1,118 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
-import axios from 'axios';
-import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
-import { colors, spacing, borderRadius, shadows, breakpoints, zIndex, fontSizes, fontWeights, typography } from './styles/designSystem';
-import ConversationList from './components/ConversationList';
-import ChatWindow from './components/ChatWindow';
-import UsageStats from './components/UsageStats';
-import GlobalStyle from './styles/globalStyles';
-import config from './config';
-
-const theme = {
-  colors,
-  spacing,
-  borderRadius,
-  shadows,
-  breakpoints,
-  zIndex,
-  fontSizes,
-  fontWeights,
-  typography
-};
-
-const AppContainer = styled.div`
-  position: relative;
-  display: flex;
-  height: 100vh;
-  background-color: ${props => props.theme.colors.background};
-  color: ${props => props.theme.colors.text};
-`;
-
-const LeftSidebarHoverArea = styled.div`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 10px;
-  z-index: ${props => props.theme.zIndex.sticky + 1};
-`;
-
-const LeftSidebar = styled.div`
-  position: fixed;
-  top: 0;
-  left: ${props => (props.$isCollapsed && !props.$hovered) ? '-190px' : '0'};
-  width: ${props => props.$isCollapsed ? '60px' : '280px'};
-  height: 100vh;
-  background-color: ${props => props.theme.colors.white};
-  border-right: 1px solid ${props => props.theme.colors.gray300};
-  transition: left 0.2s ease, width 0.3s ease;
-  overflow: hidden;
-  box-shadow: ${props => props.theme.shadows.md};
-  z-index: ${props => props.theme.zIndex.sticky};
-  &:hover {
-    left: 0;
-    width: 280px;
-  }
-`;
-
-const Sidebar = styled.div`
-  position: fixed;
-  top: 0;
-  ${props => props.$isLeft ? 'left: 0;' : 'right: 0;'}
-  width: ${props => props.$isCollapsed ? '60px' : '280px'}; // Increased from 250px
-  height: 100vh;
-  background-color: ${props => props.theme.colors.white};
-  border-right: 1px solid ${props => props.theme.colors.gray300};
-  transition: width 0.3s ease;
-  overflow: hidden;
-  box-shadow: ${props => props.theme.shadows.md};
-  z-index: ${props => props.theme.zIndex.sticky};
-`;
-
-const MainContent = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  margin-left: ${props => props.$leftSidebarWidth};
-  margin-right: ${props => props.$rightSidebarWidth};
-  overflow-y: auto;
-`;
-
-const ToggleButton = styled.button`
-  background: none;
-  border: none;
-  color: ${props => props.theme.colors.primary};
-  cursor: pointer;
-  padding: ${props => props.theme.spacing.md};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const NewConversationButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${props => props.theme.colors.fountainBlue};
-  color: ${props => props.theme.colors.white};
-  border: none;
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: ${props => props.theme.spacing.md};
-  margin: ${props => props.theme.spacing.md};
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-family: ${props => props.theme.typography.fontFamily.sansSerif};
-
-  &:hover {
-    background-color: ${props => props.theme.colors.baliHai};
-  }
-`;
+import React, { useState, useCallback, useEffect, memo } from "react";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
+import ChatArea from "./components/ChatArea";
+import axios from "axios";
+import config from "./config"; // Import the config object
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
-  const [conversations, setConversations] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [usage, setUsage] = useState(null);
-  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
-  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
-  const [leftSidebarHovered, setLeftSidebarHovered] = useState(false);
+  const [conversations, setConversations] = useState([]);
+  const [usage, setUsage] = useState({ tokens: 0, cost: 0 });
+  const MemoizedSidebar = memo(Sidebar);
 
-    const fetchConversations = useCallback(async () => {
+  const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
+
+  const fetchConversations = useCallback(async () => {
     try {
       const response = await axios.get(`${config.apiUrl}/conversations`);
       setConversations(response.data);
-      if (response.data.length > 0 && !currentConversationId) {
-        setCurrentConversationId(response.data[0].id);
-      }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
-    }
-  }, [currentConversationId]);
-
-  const fetchMessages = useCallback(async (conversationId) => {
-    try {
-      const response = await axios.get(`${config.apiUrl}/conversations/${conversationId}/messages`);
-      setMessages(response.data);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error("Error fetching conversations:", error);
     }
   }, []);
 
-  const fetchUsage = useCallback(async (conversationId) => {
-    try {
-      const response = await axios.get(`${config.apiUrl}/usage?conversation_id=${conversationId}`);
-      setUsage(response.data);
-    } catch (error) {
-      console.error('Error fetching usage:', error);
-    }
+  const updateUsage = useCallback((newTokens, newCost) => {
+    setUsage((prev) => ({
+      tokens: prev.tokens + newTokens,
+      cost: prev.cost + newCost,
+    }));
   }, []);
-
-  const startNewConversation = useCallback(async () => {
-    try {
-      const response = await axios.post(`${config.apiUrl}/conversations`);
-      const newConversationId = response.data.conversation_id;
-      setCurrentConversationId(newConversationId);
-      setMessages([]);
-      setConversations(prevConversations => [
-        { id: newConversationId, created_at: new Date().toISOString(), first_message: 'New conversation' },
-        ...prevConversations
-      ]);
-    } catch (error) {
-      console.error('Error starting new conversation:', error);
-    }
-  }, []);
-
-  const handleSend = useCallback(async (input) => {
-    if (!input.trim() || isLoading) return;
-
-    const newMessage = { role: 'user', content: input };
-    setMessages(prevMessages => [...prevMessages, newMessage]);
-    setIsLoading(true);
-
-    try {
-      const response = await axios.post(`${config.apiUrl}/chat`, {
-        conversation_id: currentConversationId,
-        messages: [input]
-      });
-
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { role: 'assistant', content: response.data.response }
-      ]);
-
-      fetchUsage(currentConversationId);
-    } catch (err) {
-      console.error('Error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentConversationId, isLoading, fetchUsage]);
 
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
 
-  useEffect(() => {
-    if (currentConversationId) {
-      fetchMessages(currentConversationId);
-      fetchUsage(currentConversationId);
-    }
-  }, [currentConversationId, fetchMessages, fetchUsage]);
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((prev) => !prev);
+  }, []);
 
-   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <AppContainer>
-        <LeftSidebarHoverArea
-          onMouseEnter={() => setLeftSidebarHovered(true)}
-          onMouseLeave={() => setLeftSidebarHovered(false)}
+  const selectConversation = useCallback((id) => {
+    setCurrentConversationId(id);
+  }, []);
+
+  const startNewConversation = useCallback(async () => {
+    try {
+      const response = await axios.post(`${config.apiUrl}/conversations`);
+      const newConversation = {
+        id: response.data.conversation_id,
+        first_message: "New conversation",
+        created_at: new Date().toISOString(),
+      };
+      setConversations((prev) => [newConversation, ...prev]);
+      setCurrentConversationId(newConversation.id);
+    } catch (error) {
+      console.error("Error starting new conversation:", error);
+    }
+  }, []);
+
+  const updateConversation = useCallback(
+    (conversationId, newMessage, newTokens, newCost) => {
+      setConversations((prevConversations) =>
+        prevConversations.map((conv) =>
+          conv.id === conversationId
+            ? {
+                ...conv,
+                first_message: conv.first_message || newMessage,
+                last_message: newMessage,
+                last_message_time: new Date().toISOString(),
+              }
+            : conv,
+        ),
+      );
+      updateUsage(newTokens, newCost);
+    },
+    [updateUsage],
+  );
+
+  return (
+    <div className="h-screen flex flex-col bg-gray-50">
+      <Header
+        sidebarOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        usage={usage}
+        setSidebarOpen={setSidebarOpen} // Pass the setSidebarOpen function
+      />
+      <div className="flex-1 flex overflow-hidden">
+        <MemoizedSidebar
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          setCurrentConversationId={setCurrentConversationId}
+          startNewConversation={startNewConversation}
+          selectConversation={selectConversation} // Pass the selectConversation function
         />
-        <LeftSidebar $isCollapsed={leftSidebarCollapsed} $hovered={leftSidebarHovered}>
-          <NewConversationButton onClick={startNewConversation}>
-            <PlusCircle size={24} style={{ marginRight: spacing.sm }} />
-            New Conversation
-          </NewConversationButton>
-          <ConversationList
-            conversations={conversations}
+        <main className="flex-1 overflow-y-auto">
+          <ChatArea
             currentConversationId={currentConversationId}
-            onSelectConversation={setCurrentConversationId}
-            isCollapsed={leftSidebarCollapsed}
+            updateConversation={updateConversation}
           />
-        </LeftSidebar>
-        <MainContent
-          $leftSidebarWidth={leftSidebarCollapsed ? '60px' : '280px'}
-          $rightSidebarWidth={rightSidebarCollapsed ? '0' : '280px'}
-        >
-          <ChatWindow
-            messages={messages}
-            isLoading={isLoading}
-            onSend={handleSend}
-          />
-        </MainContent>
-        <Sidebar $isLeft={false} $isCollapsed={rightSidebarCollapsed}>
-          <ToggleButton onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}>
-            {rightSidebarCollapsed ? <ChevronLeft /> : <ChevronRight />}
-          </ToggleButton>
-          <UsageStats usage={usage} isCollapsed={rightSidebarCollapsed} />
-        </Sidebar>
-      </AppContainer>
-    </ThemeProvider>
+        </main>
+      </div>
+      <Analytics
+        debug={isDebug}
+        beforeSend={(event) => {
+          if (process.env.REACT_APP_VERCEL_ENV !== "production") {
+            console.log("Analytics event (not sent):", event);
+            return null; // Don't send events in development or preview
+          }
+          return event;
+        }}
+      />
+    </div>
   );
 }
 
