@@ -2,8 +2,8 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 // Set the test environment to jsdom
-global.jsdom = require('jsdom');
+global.jsdom = require("jsdom");
 global.window = new global.jsdom.JSDOM().window;

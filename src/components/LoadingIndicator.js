@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const LoadingIndicator = () => (
   <div className="flex space-x-2 animate-pulse">

@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Roboto:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Merriweather&family=Roboto:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap");
 
 @layer base {
   body {
     @apply font-serif text-base  leading-relaxed m-0 p-0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   }
   * {
     @apply box-border;
@@ -42,11 +42,17 @@
     @apply font-sans mt-6 mb-4 font-bold leading-tight text-base;
   }
 
-  p, ul, ol, pre, table, blockquote {
+  p,
+  ul,
+  ol,
+  pre,
+  table,
+  blockquote {
     @apply mt-0 mb-4;
   }
 
-  ul, ol {
+  ul,
+  ol {
     @apply list-disc pl-8;
   }
 
@@ -71,16 +77,17 @@
   }
 
   @layer components {
-  .logo {
-    @apply font-bold tracking-tight;
+    .logo {
+      @apply font-bold tracking-tight;
+    }
   }
-}
 
   table {
     @apply border-collapse w-full mb-4;
   }
 
-  table th, table td {
+  table th,
+  table td {
     @apply p-2 border border-gray-300;
   }
 
@@ -92,10 +99,10 @@
     @apply scroll-smooth;
   }
 
-  button, input {
+  button,
+  input {
     @apply font-sans text-inherit;
   }
-
 
   code:not([class*="language-"]) {
     @apply bg-gray-50 text-indigo-600 font-semibold rounded-lg px-2 py-1;
@@ -105,4 +112,3 @@
     @apply p-4 rounded-lg text-white overflow-x-auto;
   }
 }
-

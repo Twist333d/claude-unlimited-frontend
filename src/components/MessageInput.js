@@ -1,43 +1,45 @@
-import React, {useEffect, useRef, useState, useCallback} from 'react';
-import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
-import { debounce } from 'lodash';
-
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import { debounce } from "lodash";
 
 function MessageInput({ onSendMessage, isDisabled }) {
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
   const textareaRef = useRef(null);
 
   const debouncedResize = useCallback(
     debounce(() => {
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = "auto";
         textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 7 * 24)}px`;
       }
     }, 100),
-    []
+    [],
   );
 
   useEffect(() => {
-  console.log('MessageInput rendered', textareaRef.current);
-}, []);
+    console.log("MessageInput rendered", textareaRef.current);
+  }, []);
 
-  const handleInputChange = useCallback((e) => {
-    setInputText(e.target.value);
-    debouncedResize();
-  }, [debouncedResize]);
+  const handleInputChange = useCallback(
+    (e) => {
+      setInputText(e.target.value);
+      debouncedResize();
+    },
+    [debouncedResize],
+  );
 
   const handleSend = useCallback(() => {
     if (inputText.trim() && !isDisabled) {
       onSendMessage(inputText);
-      setInputText('');
+      setInputText("");
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = "auto";
       }
     }
   }, [inputText, onSendMessage, isDisabled]);
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -55,22 +57,24 @@ function MessageInput({ onSendMessage, isDisabled }) {
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
         />
-        <div className= "message-input-button sticky top-0">
-        <button
-          onClick={handleSend}
-          disabled={isDisabled || !inputText.trim()}
-          className={`send-button text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+        <div className="message-input-button sticky top-0">
+          <button
+            onClick={handleSend}
+            disabled={isDisabled || !inputText.trim()}
+            className={`send-button text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
               isDisabled || !inputText.trim()
-                ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700'
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
             }`}
-        >
-          <PaperAirplaneIcon className="send-button-icon h-5 w-5 transform -rotate-90" aria-hidden="true" />
-        </button>
+          >
+            <PaperAirplaneIcon
+              className="send-button-icon h-5 w-5 transform -rotate-90"
+              aria-hidden="true"
+            />
+          </button>
         </div>
       </div>
     </div>
   );
 }
 export default React.memo(MessageInput);
-
