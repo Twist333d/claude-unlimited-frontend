@@ -1,5 +1,5 @@
 export const formatTokensOrCost = (value, isCost = false) => {
-  const unit = isCost ? "$" : "";
+  //const unit = isCost ? "$" : "";
   const suffix = isCost ? "" : "";
 
   if (isCost) {
