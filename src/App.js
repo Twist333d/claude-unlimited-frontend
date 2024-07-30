@@ -5,7 +5,6 @@ import ChatArea from "./components/ChatArea";
 import axios from "axios";
 import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
