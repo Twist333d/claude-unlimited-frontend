@@ -56,6 +56,7 @@
     "test:all": "npm run test -- --watchAll=false && npm run cypress:run",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
+    "cypress:run:local": "start-server-and-test start http://localhost:3000 cypress:run",
     "prepare": "husky"
   },
   "eslintConfig": {
