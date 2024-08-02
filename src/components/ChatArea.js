@@ -43,7 +43,7 @@ function ChatArea({ currentConversationId, updateConversation }) {
         const response = await axios.post(`${config.apiUrl}/chat`, {
           // Use config.apiUrl
           conversation_id: currentConversationId,
-          messages: [content],
+          message: content,
         });
 
         updateConversation(
