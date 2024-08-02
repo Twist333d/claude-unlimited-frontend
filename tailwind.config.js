@@ -54,6 +54,7 @@ module.exports = {
   },
   plugins: [
       require('@tailwindcss/forms'),
+      require('tailwindcss-animated'),
     function({ addUtilities }) {
       const newUtilities = {
         '.scrollbar-hide': {

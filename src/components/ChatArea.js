@@ -17,7 +17,12 @@ function ChatArea({ currentConversationId, updateConversation }) {
       const response = await axios.get(
         `${config.apiUrl}/conversations/${conversationId}/messages`,
       ); // Use config.apiUrl
-      setMessages(response.data);
+      setMessages(
+        response.data.map((msg) => ({
+          content: msg.content,
+          sender: msg.role, // Assuming the backend sends 'role' instead of 'sender'
+        })),
+      );
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -45,13 +50,6 @@ function ChatArea({ currentConversationId, updateConversation }) {
           conversation_id: currentConversationId,
           message: content,
         });
-
-        updateConversation(
-          currentConversationId,
-          content,
-          response.data.total_tokens,
-          response.data.total_cost,
-        );
 
         setMessages((prevMessages) => [
           ...prevMessages,

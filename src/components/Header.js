@@ -1,6 +1,6 @@
 // Header.js
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { formatTokensOrCost } from "../utils/numberFormatting";
 import {
@@ -49,20 +49,12 @@ function Header({ sidebarOpen, setSidebarOpen, usage }) {
             <HeaderInfo
               icon={<CurrencyDollarIcon className="h-5 w-5" />}
               label="Cost"
-              value={
-                usage && usage.cost !== undefined
-                  ? formatTokensOrCost(usage.cost, true)
-                  : "$0"
-              }
+              value={formatTokensOrCost(usage.total_cost, true)}
             />
             <HeaderInfo
               icon={<PencilSquareIcon className="h-5 w-5" />}
               label="Tokens"
-              value={
-                usage && usage.tokens !== undefined
-                  ? formatTokensOrCost(usage.tokens)
-                  : "0"
-              }
+              value={formatTokensOrCost(usage.total_tokens)}
             />
           </div>
 
@@ -81,11 +73,24 @@ function Header({ sidebarOpen, setSidebarOpen, usage }) {
 }
 
 function HeaderInfo({ icon, label, value }) {
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setAnimate(true);
+    const timer = setTimeout(() => setAnimate(false), 500);
+    return () => clearTimeout(timer);
+  }, [value]);
+
   return (
     <div className="flex items-center space-x-1">
       {icon}
       <span className="font-bold">
-        {label}: {value}
+        {label}:{" "}
+        <span
+          className={`transition-all duration-500 ${animate ? "animate-pulse" : ""}`}
+        >
+          {value}
+        </span>
       </span>
     </div>
   );

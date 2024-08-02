@@ -10,7 +10,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
-  const [usage, setUsage] = useState({ tokens: 0, cost: 0 });
+  const [usage, setUsage] = useState({ total_tokens: 0, total_cost: 0 });
   const MemoizedSidebar = memo(Sidebar);
 
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
@@ -24,38 +24,49 @@ function App() {
     }
   }, []);
 
-  const updateUsage = useCallback((newTokens, newCost) => {
-    setUsage((prev) => ({
-      tokens: prev.tokens + newTokens,
-      cost: prev.cost + newCost,
-    }));
-  }, []);
-
-  // fetch conversations on component mount
-  useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
-
   // fetch usage on component mount
-  const fetchUsage = useCallback(async (conversationId) => {
+  const fetchUsage = useCallback(async (conversationId = null) => {
+    if (!conversationId) {
+      setUsage({ total_tokens: 0, total_cost: 0 });
+      return;
+    }
     try {
       const response = await axios.get(
-        `${config.apiUrl}/usage${conversationId ? `?conversation_id=${conversationId}` : ""}`,
+        `${config.apiUrl}/usage?conversation_id=${conversationId}`,
       );
       setUsage(response.data);
     } catch (error) {
       console.error("Error fetching usage stats:", error);
+      setUsage({ total_tokens: 0, total_cost: 0 });
     }
   }, []);
 
-  // on load fetch tokens and data
+  // fetch conversations & usage stats on component mount
   useEffect(() => {
-    if (currentConversationId) {
-      fetchUsage(currentConversationId);
-    } else {
-      setUsage({ tokens: 0, cost: 0 });
-    }
-  }, [currentConversationId, fetchUsage]);
+    fetchConversations();
+    fetchUsage(currentConversationId);
+  }, [fetchConversations, fetchUsage, currentConversationId]);
+
+  // Update the updateConversation function
+  const updateConversation = useCallback(
+    (conversationId, newMessage) => {
+      setConversations((prevConversations) =>
+        prevConversations.map((conv) =>
+          conv.id === conversationId
+            ? {
+                ...conv,
+                title:
+                  conv.title === "New Conversation" ? newMessage : conv.title,
+                last_message: newMessage,
+                last_message_at: new Date().toISOString(),
+              }
+            : conv,
+        ),
+      );
+      fetchUsage(conversationId); // Fetch updated usage after each message
+    },
+    [fetchUsage],
+  );
 
   useEffect(() => {
     console.log("Updated conversations:", conversations); // Add this log
@@ -69,46 +80,36 @@ function App() {
     setCurrentConversationId(id);
   }, []);
 
-  const startNewConversation = useCallback(async () => {
+  const startNewConversation = useCallback(async (firstMessage) => {
     try {
+      const title =
+        typeof firstMessage === "string" ? firstMessage : "New Conversation";
+
       const response = await axios.post(
         `${config.apiUrl}/conversations`,
-        { title: "New Conversation" }, // Send a body, even if it's empty
+        { title }, // Send a body, even if it's empty
         {
           headers: {
             "Content-Type": "application/json",
           },
         },
       );
-      // TO DO -> when a conversation is created, save the first message as title. This will allow replacing the defaults.
+
       const newConversation = {
         id: response.data.conversation_id,
-        title: "New Conversation",
+        title: title,
       };
-      setConversations((prev) => [newConversation, ...prev]);
+      // Update this line
+      setConversations((prev) => [
+        newConversation,
+        ...prev.filter((conv) => conv.id !== newConversation.id),
+      ]);
+
       setCurrentConversationId(newConversation.id);
     } catch (error) {
       console.error("Error starting new conversation:", error);
     }
   }, []);
-
-  const updateConversation = useCallback(
-    (conversationId, newMessage, newTokens, newCost) => {
-      setConversations((prevConversations) =>
-        prevConversations.map((conv) =>
-          conv.id === conversationId
-            ? {
-                ...conv,
-                last_message: newMessage,
-                last_message_at: new Date().toISOString(),
-              }
-            : conv,
-        ),
-      );
-      updateUsage(newTokens, newCost);
-    },
-    [updateUsage],
-  );
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
