@@ -87,7 +87,7 @@ function HeaderInfo({ icon, label, value }) {
       <span className="font-bold">
         {label}:{" "}
         <span
-          className={`transition-all duration-500 ${animate ? "animate-pulse" : ""}`}
+          className={`transition-all duration-1000 ${animate ? "animate-fade-down animate-iteration-infinite" : ""}`}
         >
           {value}
         </span>

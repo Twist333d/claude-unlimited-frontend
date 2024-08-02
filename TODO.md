@@ -1,5 +1,7 @@
-- Fix the way the usage stats are calculated:
-  - they should zero out for new cold starts 
-  - they should be displayed for each conversation
-  - so when users switch they should see updated counts
-  - when a new request is received FE should send the info to BE to update (or how it should be done?)
+- Re-factor conversation starting. I don't understand why do I have a separate route even.
+- It potentially should be as simple as:
+  - either sending a message to a new chat on load
+  - sending a message to a new chat after clicking the button
+  - should have the same flow for creation
+  - the button should just clear the messages (load a new page so-to-speak) 
+- Fix the tests, and re-test everything.
