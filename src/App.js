@@ -31,9 +31,35 @@ function App() {
     }));
   }, []);
 
+  // fetch conversations on component mount
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
+
+  // fetch usage on component mount
+  const fetchUsage = useCallback(async (conversationId) => {
+    try {
+      const response = await axios.get(
+        `${config.apiUrl}/usage${conversationId ? `?conversation_id=${conversationId}` : ""}`,
+      );
+      setUsage(response.data);
+    } catch (error) {
+      console.error("Error fetching usage stats:", error);
+    }
+  }, []);
+
+  // on load fetch tokens and data
+  useEffect(() => {
+    if (currentConversationId) {
+      fetchUsage(currentConversationId);
+    } else {
+      setUsage({ tokens: 0, cost: 0 });
+    }
+  }, [currentConversationId, fetchUsage]);
+
+  useEffect(() => {
+    console.log("Updated conversations:", conversations); // Add this log
+  }, [conversations]);
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
@@ -45,11 +71,19 @@ function App() {
 
   const startNewConversation = useCallback(async () => {
     try {
-      const response = await axios.post(`${config.apiUrl}/conversations`);
+      const response = await axios.post(
+        `${config.apiUrl}/conversations`,
+        { title: "New Conversation" }, // Send a body, even if it's empty
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      // TO DO -> when a conversation is created, save the first message as title. This will allow replacing the defaults.
       const newConversation = {
         id: response.data.conversation_id,
-        first_message: "New conversation",
-        created_at: new Date().toISOString(),
+        title: "New Conversation",
       };
       setConversations((prev) => [newConversation, ...prev]);
       setCurrentConversationId(newConversation.id);
@@ -65,9 +99,8 @@ function App() {
           conv.id === conversationId
             ? {
                 ...conv,
-                first_message: conv.first_message || newMessage,
                 last_message: newMessage,
-                last_message_time: new Date().toISOString(),
+                last_message_at: new Date().toISOString(),
               }
             : conv,
         ),

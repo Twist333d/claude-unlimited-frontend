@@ -70,11 +70,11 @@ function Sidebar({
                   >
                     <div className="flex flex-col items-start space-y-0.5">
                       <p className="text-sm font-medium truncate">
-                        {truncateMessage(conversation.first_message, 40)}
+                        {truncateMessage(conversation.title, 40)}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
-                        {conversation.last_message
-                          ? `Last message ${getRelativeTimeString(conversation.last_message_time)}`
+                        {conversation.last_message_at
+                          ? `Last message ${getRelativeTimeString(conversation.last_message_at)}`
                           : "No messages yet..."}
                       </p>
                     </div>
