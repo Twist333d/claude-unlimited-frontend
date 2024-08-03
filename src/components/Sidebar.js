@@ -55,7 +55,13 @@ function Sidebar({
         <div className="w-64 bg-white overflow-hidden rounded-lg shadow-md">
           <div className="px-4 py-2">
             <button
-              onClick={startNewConversation}
+              onClick={() => {
+                if (!currentConversationId) {
+                  // If we're already in a new conversation, do nothing
+                  return;
+                }
+                startNewConversation();
+              }}
               className="w-full flex items-center justify-left px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <ChatBubbleBottomCenterIcon

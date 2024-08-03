@@ -49,6 +49,16 @@ module.exports = {
       },
       transitionTimingFunction: {
         'easing': 'cubic-bezier(0.4, 0, 0.2, 1)',
+
+        animation: {
+        'fade-down': 'fadeDown 0.5s ease-out',
+      },
+      keyframes: {
+        fadeDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+             },
+           },
       },
     },
   },
