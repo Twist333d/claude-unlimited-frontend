@@ -59,11 +59,16 @@ function Sidebar({
           <nav className="flex-1 overflow-y-auto">
             <ul className="space-y-1 pt-4">
               {conversations.map((conversation) => (
-                <li key={conversation.id} className="px-2 rounded-md">
+                <li key={conversation.id || "new"} className="px-2 rounded-md">
                   <button
-                    onClick={() => handleConversationClick(conversation.id)}
+                    onClick={() =>
+                      conversation.id
+                        ? selectConversation(conversation.id)
+                        : startNewConversation()
+                    }
                     className={`w-full flex items-center py-2 px-2 text-sm rounded-md overflow-hidden transition-colors duration-150 ease-in-out ${
-                      currentConversationId === conversation.id
+                      currentConversationId === conversation.id ||
+                      (!currentConversationId && !conversation.id)
                         ? "bg-gray-100 text-gray-900"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     }`}

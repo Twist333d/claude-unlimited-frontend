@@ -80,35 +80,16 @@ function App() {
     setCurrentConversationId(id);
   }, []);
 
-  const startNewConversation = useCallback(async (firstMessage) => {
-    try {
-      const title =
-        typeof firstMessage === "string" ? firstMessage : "New Conversation";
-
-      const response = await axios.post(
-        `${config.apiUrl}/conversations`,
-        { title }, // Send a body, even if it's empty
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      const newConversation = {
-        id: response.data.conversation_id,
-        title: title,
-      };
-      // Update this line
-      setConversations((prev) => [
-        newConversation,
-        ...prev.filter((conv) => conv.id !== newConversation.id),
-      ]);
-
-      setCurrentConversationId(newConversation.id);
-    } catch (error) {
-      console.error("Error starting new conversation:", error);
-    }
+  const startNewConversation = useCallback(() => {
+    setCurrentConversationId(null);
+    setConversations((prevConversations) => [
+      {
+        id: null,
+        title: "New Conversation",
+        last_message_at: new Date().toISOString(),
+      },
+      ...prevConversations,
+    ]);
   }, []);
 
   return (
@@ -132,6 +113,8 @@ function App() {
         <main className="flex-1 overflow-y-auto">
           <ChatArea
             currentConversationId={currentConversationId}
+            setCurrentConversationId={setCurrentConversationId}
+            setConversations={setConversations}
             updateConversation={updateConversation}
           />
         </main>

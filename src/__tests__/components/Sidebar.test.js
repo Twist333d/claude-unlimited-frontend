@@ -7,13 +7,13 @@ describe("Sidebar component", () => {
   const mockConversations = [
     {
       id: "1",
-      first_message: "Hello",
-      last_message_time: new Date().toISOString(),
+      title: "Conversation 1",
+      last_message_at: new Date().toISOString(),
     },
     {
       id: "2",
-      first_message: "Test",
-      last_message_time: new Date().toISOString(),
+      title: "Conversation 2",
+      last_message_at: new Date().toISOString(),
     },
   ];
 
@@ -24,13 +24,15 @@ describe("Sidebar component", () => {
         sidebarOpen={true}
         conversations={mockConversations}
         selectConversation={mockSelectConversation}
+        currentConversationId={null}
+        startNewConversation={() => {}}
       />,
     );
 
-    expect(screen.getByText("Hello")).toBeInTheDocument();
-    expect(screen.getByText("Test")).toBeInTheDocument();
+    expect(screen.getByText("Conversation 1")).toBeInTheDocument();
+    expect(screen.getByText("Conversation 2")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Hello"));
+    fireEvent.click(screen.getByText("Conversation 1"));
     expect(mockSelectConversation).toHaveBeenCalledWith("1");
   });
 });

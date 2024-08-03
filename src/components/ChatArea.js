@@ -7,7 +7,12 @@ import LoadingIndicator from "./LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "./ErrorBoundary";
 
-function ChatArea({ currentConversationId, updateConversation }) {
+function ChatArea({
+  currentConversationId,
+  setCurrentConversationId,
+  updateConversation,
+  setConversations,
+}) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,10 +51,29 @@ function ChatArea({ currentConversationId, updateConversation }) {
 
       try {
         const response = await axios.post(`${config.apiUrl}/chat`, {
-          // Use config.apiUrl
           conversation_id: currentConversationId,
           message: content,
         });
+
+        const newConversationId =
+          response.data.conversation_id || currentConversationId;
+
+        if (newConversationId !== currentConversationId) {
+          // This is a new conversation
+          setCurrentConversationId(newConversationId);
+          setConversations((prevConversations) => [
+            {
+              id: newConversationId,
+              title: content.slice(0, 30) + "...", // Use first 30 chars of message as title
+              last_message: content,
+              last_message_at: new Date().toISOString(),
+            },
+            ...prevConversations.filter((conv) => conv.id !== null),
+          ]);
+        } else {
+          // This is an existing conversation
+          updateConversation(newConversationId, content);
+        }
 
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -61,8 +85,13 @@ function ChatArea({ currentConversationId, updateConversation }) {
         setIsLoading(false);
       }
     },
-    [currentConversationId, updateConversation],
-  ); // Dependency on currentConversationId
+    [
+      currentConversationId,
+      setCurrentConversationId,
+      setConversations,
+      updateConversation,
+    ],
+  );
 
   // Use useMemo to memoize the rendered messages
   const memoizedMessages = useMemo(
