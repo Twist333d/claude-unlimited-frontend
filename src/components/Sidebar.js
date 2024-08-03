@@ -1,5 +1,4 @@
-import React from "react";
-//import React, { memo } from "react";
+import React, { useMemo } from "react";
 import {
   ChatBubbleBottomCenterIcon,
   ChevronLeftIcon,
@@ -16,15 +15,25 @@ function Sidebar({
   selectConversation,
   startNewConversation,
 }) {
-  const handleConversationClick = (id) => {
-    selectConversation(id);
-  };
-
   const truncateMessage = (message, maxLength) => {
     if (!message) return ""; // Add this line
     if (message.length <= maxLength) return message;
     return `${message.substring(0, maxLength)}...`;
   };
+
+  const sortedConversations = useMemo(() => {
+    return [...conversations].sort((a, b) => {
+      if (a.id === null) return -1; // New conversation goes to the top
+      if (b.id === null) return 1; // New conversation goes to the top
+      const dateA = a.last_message_at
+        ? new Date(a.last_message_at)
+        : new Date(0);
+      const dateB = b.last_message_at
+        ? new Date(b.last_message_at)
+        : new Date(0);
+      return dateB - dateA;
+    });
+  }, [conversations]);
 
   return (
     <div
@@ -58,7 +67,7 @@ function Sidebar({
           </div>
           <nav className="flex-1 overflow-y-auto">
             <ul className="space-y-1 pt-4">
-              {conversations.map((conversation) => (
+              {sortedConversations.map((conversation) => (
                 <li key={conversation.id || "new"} className="px-2 rounded-md">
                   <button
                     onClick={() =>
@@ -94,4 +103,4 @@ function Sidebar({
   );
 }
 
-export default Sidebar;
+export default React.memo(Sidebar);

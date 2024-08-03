@@ -1,7 +1,8 @@
-- Re-factor conversation starting. I don't understand why do I have a separate route even.
+- Re-factor conversation starting. I don't understand why do I have a separate route even - DONE
 - It potentially should be as simple as:
   - either sending a message to a new chat on load
   - sending a message to a new chat after clicking the button
   - should have the same flow for creation
   - the button should just clear the messages (load a new page so-to-speak) 
-- Fix the tests, and re-test everything.
+- Fix the tests, and re-test everything - DONE
+- Fix cypress tests

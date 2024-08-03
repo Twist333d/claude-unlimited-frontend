@@ -58,20 +58,19 @@ function ChatArea({
         const newConversationId =
           response.data.conversation_id || currentConversationId;
 
-        if (newConversationId !== currentConversationId) {
+        if (currentConversationId === null) {
           // This is a new conversation
           setCurrentConversationId(newConversationId);
           setConversations((prevConversations) => [
             {
               id: newConversationId,
-              title: content.slice(0, 30) + "...", // Use first 30 chars of message as title
-              last_message: content,
+              title: response.data.title, // Use first 30 chars of message as title
               last_message_at: new Date().toISOString(),
             },
             ...prevConversations.filter((conv) => conv.id !== null),
           ]);
         } else {
-          // This is an existing conversation
+          // Existing conversation
           updateConversation(newConversationId, content);
         }
 

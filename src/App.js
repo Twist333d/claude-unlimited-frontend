@@ -81,12 +81,12 @@ function App() {
   }, []);
 
   const startNewConversation = useCallback(() => {
-    setCurrentConversationId(null);
+    setCurrentConversationId(null); // we don't have an id just yet
     setConversations((prevConversations) => [
       {
         id: null,
         title: "New Conversation",
-        last_message_at: new Date().toISOString(),
+        last_message_at: null, // there is no message just yet
       },
       ...prevConversations,
     ]);
