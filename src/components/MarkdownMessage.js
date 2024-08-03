@@ -12,15 +12,14 @@ const getColorForTag = (tag) => {
 };
 
 const XMLTag = ({ children }) => {
+  if (!children || !Array.isArray(children) || children.length === 0) {
+    return null;
+  }
+
   const tagName = children[0].props.children[0];
   const color = getColorForTag(tagName);
-  return (
-    <span
-      className={`inline-flex items-center rounded-md bg-${color}-50 px-2 py-1 text-xs font-medium text-${color}-700 ring-1 ring-inset ring-${color}-600/20`}
-    >
-      {children}
-    </span>
-  );
+
+  return <span style={{ backgroundColor: `${color}` }}>{children}</span>;
 };
 
 const MarkdownMessage = React.memo(function MarkdownMessage({ content }) {

@@ -9,5 +9,8 @@ module.exports = defineConfig({
       }
       return config;
     },
+    env: {
+      VERBOSE: true,
+    },
   },
 });
