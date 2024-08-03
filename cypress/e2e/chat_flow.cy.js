@@ -20,7 +20,7 @@ describe('Chat Application E2E Test', () => {
     cy.wait('@sendMessage').then((interception) => {
       expect(interception.response.statusCode).to.equal(200, 'Expected a 200 status code for the send message API call');
       cy.log('Send message API call was successful');
-      expect(interception.response.body).to.have.property('response', 'Expected a response property in the API response');
+      expect(interception.response.body).to.have.property('response');
       cy.log('API response contains the expected response property');
     });
 
