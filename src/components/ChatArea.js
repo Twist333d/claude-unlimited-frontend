@@ -6,6 +6,7 @@ import config from "../config"; // Import the config object
 import LoadingIndicator from "./LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "./ErrorBoundary";
+import { supabase } from "../index";
 
 function ChatArea({
   currentConversationId,
@@ -19,13 +20,28 @@ function ChatArea({
   // Use useCallback to memoize the fetchMessages function
   const fetchMessages = useCallback(async (conversationId) => {
     try {
-      const response = await axios.get(
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const response = await fetch(
         `${config.apiUrl}/conversations/${conversationId}/messages`,
-      ); // Use config.apiUrl
+        {
+          headers: {
+            Authorization: `Bearer ${sessionData.session.access_token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
       setMessages(
-        response.data.map((msg) => ({
+        data.map((msg) => ({
           content: msg.content,
-          sender: msg.role, // Assuming the backend sends 'role' instead of 'sender'
+          sender: msg.role,
         })),
       );
     } catch (error) {
@@ -50,13 +66,41 @@ function ChatArea({
       setIsLoading(true);
 
       try {
-        const response = await axios.post(`${config.apiUrl}/chat`, {
-          conversation_id: currentConversationId,
-          message: content,
+        const { data: sessionData, error: sessionError } =
+          await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+
+        if (!sessionData.session) {
+          // If no session, attempt anonymous sign-in
+          const { data: anonData, error: anonError } =
+            await supabase.auth.signInAnonymously();
+          if (anonError) throw anonError;
+        }
+
+        // Fetch the token again (it might be a new anonymous token)
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        const response = await fetch(`${config.apiUrl}/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            conversation_id: currentConversationId,
+            message: content,
+          }),
         });
 
-        const newConversationId =
-          response.data.conversation_id || currentConversationId;
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+
+        const newConversationId = data.conversation_id || currentConversationId;
 
         if (currentConversationId === null) {
           // This is a new conversation
@@ -64,7 +108,7 @@ function ChatArea({
           setConversations((prevConversations) => [
             {
               id: newConversationId,
-              title: response.data.title, // Use first 30 chars of message as title
+              title: data.title,
               last_message_at: new Date().toISOString(),
             },
             ...prevConversations.filter((conv) => conv.id !== null),
@@ -76,7 +120,7 @@ function ChatArea({
 
         setMessages((prevMessages) => [
           ...prevMessages,
-          { content: response.data.response, sender: "assistant" },
+          { content: data.response, sender: "assistant" },
         ]);
       } catch (error) {
         console.error("Error sending message:", error);

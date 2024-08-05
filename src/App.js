@@ -5,20 +5,44 @@ import ChatArea from "./components/ChatArea";
 import axios from "axios";
 import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
+import { supabase } from "./index";
 
-function App() {
+function App(session) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [usage, setUsage] = useState({ total_tokens: 0, total_cost: 0 });
   const MemoizedSidebar = memo(Sidebar);
+  const [user, setUser] = useState(session?.user || null);
+
+  useEffect(() => {
+    if (session) {
+      setUser(session.user);
+    } else {
+      setUser(null);
+    }
+  }, [session]);
 
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
   const fetchConversations = useCallback(async () => {
     try {
-      const response = await axios.get(`${config.apiUrl}/conversations`);
-      setConversations(response.data);
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const response = await fetch(`${config.apiUrl}/conversations`, {
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      setConversations(data);
     } catch (error) {
       console.error("Error fetching conversations:", error);
     }
@@ -31,10 +55,25 @@ function App() {
       return;
     }
     try {
-      const response = await axios.get(
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const response = await fetch(
         `${config.apiUrl}/usage?conversation_id=${conversationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionData.session.access_token}`,
+          },
+        },
       );
-      setUsage(response.data);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      setUsage(data);
     } catch (error) {
       console.error("Error fetching usage stats:", error);
       setUsage({ total_tokens: 0, total_cost: 0 });
