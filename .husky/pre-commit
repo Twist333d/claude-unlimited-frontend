@@ -1,1 +1,2 @@
 npx lint-staged
+npm run generate-structure && git add project_structure.txt

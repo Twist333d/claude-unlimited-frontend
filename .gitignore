@@ -148,4 +148,5 @@ dmypy.json
 cython_debug/
 /.env
 .idea/
-
+.env*
+!.env.example
