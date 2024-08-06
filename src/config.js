@@ -1,5 +1,5 @@
 const config = {
-  apiUrl: process.env.REACT_APP_API_URL || "http://localhost:5001",
+  apiUrl: process.env.REACT_APP_API_URL || "http://localhost:5000",
   supabaseUrl: process.env.SUPABASE_URL || "http://127.0.0.1:54321",
   supabaseAnonKey:
     process.env.SUPABASE_KEY ||

@@ -2,38 +2,56 @@ import React, { useState, useCallback, useEffect, memo } from "react";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ChatArea from "./components/ChatArea";
-import axios from "axios";
 import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./index";
 
-function App(session) {
+function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [usage, setUsage] = useState({ total_tokens: 0, total_cost: 0 });
   const MemoizedSidebar = memo(Sidebar);
-  const [user, setUser] = useState(session?.user || null);
-
-  useEffect(() => {
-    if (session) {
-      setUser(session.user);
-    } else {
-      setUser(null);
-    }
-  }, [session]);
+  const [session, setSession] = useState(null);
 
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        supabase.auth.signInAnonymously().catch(console.error);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        supabase.auth.signInAnonymously().catch(console.error);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const fetchConversations = useCallback(async () => {
+    if (!session) return;
     try {
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
+      const {
+        data: { session: currentSession },
+        error,
+      } = await supabase.auth.getSession();
+      if (error) throw error;
+      if (!currentSession) throw new Error("No active session");
+
+      console.log("Current session:", currentSession);
+      console.log("Access token:", currentSession.access_token);
 
       const response = await fetch(`${config.apiUrl}/conversations`, {
         headers: {
-          Authorization: `Bearer ${sessionData.session.access_token}`,
+          Authorization: `Bearer ${currentSession.access_token}`,
         },
       });
 
@@ -46,45 +64,46 @@ function App(session) {
     } catch (error) {
       console.error("Error fetching conversations:", error);
     }
-  }, []);
+  }, [session]);
 
   // fetch usage on component mount
-  const fetchUsage = useCallback(async (conversationId = null) => {
-    if (!conversationId) {
-      setUsage({ total_tokens: 0, total_cost: 0 });
-      return;
-    }
-    try {
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-
-      const response = await fetch(
-        `${config.apiUrl}/usage?conversation_id=${conversationId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionData.session.access_token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+  const fetchUsage = useCallback(
+    async (conversationId = null) => {
+      if (!session || !conversationId) {
+        setUsage({ total_tokens: 0, total_cost: 0 });
+        return;
       }
+      try {
+        const response = await fetch(
+          `${config.apiUrl}/usage?conversation_id=${conversationId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          },
+        );
 
-      const data = await response.json();
-      setUsage(data);
-    } catch (error) {
-      console.error("Error fetching usage stats:", error);
-      setUsage({ total_tokens: 0, total_cost: 0 });
-    }
-  }, []);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        setUsage(data);
+      } catch (error) {
+        console.error("Error fetching usage stats:", error);
+        setUsage({ total_tokens: 0, total_cost: 0 });
+      }
+    },
+    [session],
+  );
 
   // fetch conversations & usage stats on component mount
   useEffect(() => {
-    fetchConversations();
-    fetchUsage(currentConversationId);
-  }, [fetchConversations, fetchUsage, currentConversationId]);
+    if (session) {
+      fetchConversations();
+      fetchUsage(currentConversationId);
+    }
+  }, [fetchConversations, fetchUsage, currentConversationId, session]);
 
   // Update the updateConversation function
   const updateConversation = useCallback(
@@ -155,6 +174,7 @@ function App(session) {
             setCurrentConversationId={setCurrentConversationId}
             setConversations={setConversations}
             updateConversation={updateConversation}
+            session={session}
           />
         </main>
       </div>

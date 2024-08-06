@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
-import axios from "axios";
 import config from "../config"; // Import the config object
 import LoadingIndicator from "./LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
@@ -13,41 +12,42 @@ function ChatArea({
   setCurrentConversationId,
   updateConversation,
   setConversations,
+  session,
 }) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Use useCallback to memoize the fetchMessages function
-  const fetchMessages = useCallback(async (conversationId) => {
-    try {
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-
-      const response = await fetch(
-        `${config.apiUrl}/conversations/${conversationId}/messages`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionData.session.access_token}`,
+  const fetchMessages = useCallback(
+    async (conversationId) => {
+      if (!session) return;
+      try {
+        const response = await fetch(
+          `${config.apiUrl}/conversations/${conversationId}/messages`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
           },
-        },
-      );
+        );
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        setMessages(
+          data.map((msg) => ({
+            content: msg.content,
+            sender: msg.role,
+          })),
+        );
+      } catch (error) {
+        console.error("Error fetching messages:", error);
       }
-
-      const data = await response.json();
-      setMessages(
-        data.map((msg) => ({
-          content: msg.content,
-          sender: msg.role,
-        })),
-      );
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
-  }, []); // Empty dependency array as it doesn't depend on any props or state
+    },
+    [session],
+  ); // Empty dependency array as it doesn't depend on any props or state
 
   // Use useEffect to fetch messages when currentConversationId changes
   useEffect(() => {
@@ -61,27 +61,16 @@ function ChatArea({
   // Use useCallback to memoize the addMessage function
   const addMessage = useCallback(
     async (content) => {
+      if (!session) {
+        console.error("No active session");
+        return;
+      }
+
       const newMessage = { content, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setIsLoading(true);
 
       try {
-        const { data: sessionData, error: sessionError } =
-          await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
-
-        if (!sessionData.session) {
-          // If no session, attempt anonymous sign-in
-          const { data: anonData, error: anonError } =
-            await supabase.auth.signInAnonymously();
-          if (anonError) throw anonError;
-        }
-
-        // Fetch the token again (it might be a new anonymous token)
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
         const response = await fetch(`${config.apiUrl}/chat`, {
           method: "POST",
           headers: {
@@ -133,6 +122,7 @@ function ChatArea({
       setCurrentConversationId,
       setConversations,
       updateConversation,
+      session,
     ],
   );
 
