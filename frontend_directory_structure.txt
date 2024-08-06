@@ -12,7 +12,6 @@ cypress/
     fixtures/
         example.json
     screenshots/
-        chat_flow.cy.js/
     support/
         commands.js
         e2e.js
