@@ -6,16 +6,13 @@
 .husky/
     _/
         .gitignore
-README.MD
-TODO.md
-Web design rules.md
 cypress/
-    downloads/
     e2e/
         chat_flow.cy.js
     fixtures/
         example.json
     screenshots/
+        chat_flow.cy.js/
     support/
         commands.js
         e2e.js
@@ -26,14 +23,12 @@ postcss.config.js
 public/
     index.html
     manifest.json
+README.MD
 scripts/
     generateProjectStructure.js
 src/
     App.js
-    __tests__/
-        components/
-            Header.test.js
-            Sidebar.test.js
+    assets/
     components/
         ChatArea.js
         ErrorBoundary.js
@@ -54,5 +49,11 @@ src/
         logger.js
         numberFormatting.js
         timeFormatting.js
+    __tests__/
+        components/
+            Header.test.js
+            Sidebar.test.js
 tailwind.config.js
+TODO.md
+Web design rules.md
 webpack.config.js

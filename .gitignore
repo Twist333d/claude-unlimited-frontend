@@ -1,5 +1,6 @@
 .expo
 __generated__
+# Ignore all the .idea folder content
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
@@ -16,6 +17,9 @@ __generated__
 .idea/**/dbnavigator.xml
 .idea/**/gradle.xml
 .idea/**/libraries
+# But not these run configuration files
+!.idea/runConfigurations/
+
 cmake-build-*/
 .idea/**/mongoSettings.xml
 *.iws
