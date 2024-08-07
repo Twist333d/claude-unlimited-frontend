@@ -5,7 +5,7 @@ import ChatArea from "./components/ChatArea";
 import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./index";
-import TurnstileWidget from "./components/TurnstileWidget";
+import { initializeTurnstile, getTurnstileToken } from "./utils/turnstile";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,21 +15,35 @@ function App() {
   const MemoizedSidebar = memo(Sidebar);
   const [session, setSession] = useState(null);
   const [turnstileToken, setTurnstileToken] = useState(null);
+  const [turnstileReady, setTurnstileReady] = useState(false);
 
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
-  const handleTurnstileVerify = useCallback((token) => {
-    setTurnstileToken(token);
+  useEffect(() => {
+    console.log("Initializing Turnstile...");
+    initializeTurnstile(config.turnstileSiteKey)
+      .then((token) => {
+        console.log("Turnstile initialized and token obtained:", token);
+        setTurnstileToken(token);
+        setTurnstileReady(true);
+      })
+      .catch((error) => {
+        console.error("Failed to initialize Turnstile:", error);
+        // Implement appropriate error handling
+      });
   }, []);
 
   useEffect(() => {
     const initializeAuth = async () => {
-      try {
-        if (!turnstileToken) {
-          console.log("Waiting for Turnstile verification");
-          return;
-        }
+      if (!turnstileReady || !turnstileToken) {
+        console.log(
+          "Turnstile not ready or no token available, skipping auth initialization",
+        );
+        return;
+      }
 
+      try {
+        console.log("Checking Supabase session...");
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -37,7 +51,13 @@ function App() {
 
         if (!session) {
           console.log("No active session, attempting anonymous sign-in");
-          const { error } = await supabase.auth.signInAnonymously();
+          const { error } = await supabase.auth.signInAnonymously({
+            options: {
+              data: {
+                turnstileToken: turnstileToken,
+              },
+            },
+          });
           if (error) throw error;
           console.log("Anonymous sign-in successful");
         } else {
@@ -52,7 +72,7 @@ function App() {
     };
 
     initializeAuth();
-  }, [turnstileToken]);
+  }, [turnstileReady, turnstileToken]);
 
   useEffect(() => {
     const {
@@ -181,7 +201,7 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
-      <TurnstileWidget onVerify={handleTurnstileVerify} />
+      <div id="turnstile-container" style={{ display: "none" }}></div>
       <Header
         sidebarOpen={sidebarOpen}
         toggleSidebar={toggleSidebar}

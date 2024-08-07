@@ -12,6 +12,7 @@ cypress/
     fixtures/
         example.json
     screenshots/
+        chat_flow.cy.js/
     support/
         commands.js
         e2e.js
@@ -37,7 +38,6 @@ src/
         Message.js
         MessageInput.js
         Sidebar.js
-        TurnstileWidget.js
     config.js
     index.js
     logo.svg
@@ -49,6 +49,7 @@ src/
         logger.js
         numberFormatting.js
         timeFormatting.js
+        turnstile.js
     __tests__/
         components/
             Header.test.js
