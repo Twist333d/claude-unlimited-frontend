@@ -37,6 +37,7 @@ src/
         Message.js
         MessageInput.js
         Sidebar.js
+        TurnstileWidget.js
     config.js
     index.js
     logo.svg

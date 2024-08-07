@@ -5,6 +5,7 @@ import ChatArea from "./components/ChatArea";
 import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./index";
+import TurnstileWidget from "./components/TurnstileWidget";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -13,12 +14,22 @@ function App() {
   const [usage, setUsage] = useState({ total_tokens: 0, total_cost: 0 });
   const MemoizedSidebar = memo(Sidebar);
   const [session, setSession] = useState(null);
+  const [turnstileToken, setTurnstileToken] = useState(null);
 
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
+
+  const handleTurnstileVerify = useCallback((token) => {
+    setTurnstileToken(token);
+  }, []);
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        if (!turnstileToken) {
+          console.log("Waiting for Turnstile verification");
+          return;
+        }
+
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -37,12 +48,13 @@ function App() {
           "Error during authentication initialization:",
           error.message,
         );
-        // Handle error (e.g., show error message to user)
       }
     };
 
     initializeAuth();
+  }, [turnstileToken]);
 
+  useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -169,6 +181,7 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
+      <TurnstileWidget onVerify={handleTurnstileVerify} />
       <Header
         sidebarOpen={sidebarOpen}
         toggleSidebar={toggleSidebar}
