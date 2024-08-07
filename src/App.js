@@ -17,20 +17,37 @@ function App() {
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
   useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setSession(session);
+
+        if (!session) {
+          console.log("No active session, attempting anonymous sign-in");
+          const { error } = await supabase.auth.signInAnonymously();
+          if (error) throw error;
+          console.log("Anonymous sign-in successful");
+        } else {
+          console.log("Active session found");
+        }
+      } catch (error) {
+        console.error(
+          "Error during authentication initialization:",
+          error.message,
+        );
+        // Handle error (e.g., show error message to user)
+      }
+    };
+
+    initializeAuth();
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed", _event);
       setSession(session);
-      if (!session) {
-        supabase.auth.signInAnonymously().catch(console.error);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (!session) {
-        supabase.auth.signInAnonymously().catch(console.error);
-      }
     });
 
     return () => subscription.unsubscribe();

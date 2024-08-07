@@ -63,7 +63,15 @@ function ChatArea({
     async (content) => {
       if (!session) {
         console.error("No active session");
-        return;
+        try {
+          const { error } = await supabase.auth.signInAnonymously();
+          if (error) throw error;
+          console.log("Re-authenticated anonymously");
+          // Optionally, you could recall addMessage here after successful re-auth
+        } catch (error) {
+          console.error("Failed to re-authenticate:", error);
+          return;
+        }
       }
 
       const newMessage = { content, sender: "user" };
