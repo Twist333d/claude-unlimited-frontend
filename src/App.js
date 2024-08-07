@@ -29,7 +29,6 @@ function App() {
       })
       .catch((error) => {
         console.error("Failed to initialize Turnstile:", error);
-        // Implement appropriate error handling
       });
   }, []);
 
@@ -51,23 +50,26 @@ function App() {
 
         if (!session) {
           console.log("No active session, attempting anonymous sign-in");
-          const { error } = await supabase.auth.signInAnonymously({
-            options: {
-              data: {
-                turnstileToken: turnstileToken,
-              },
-            },
+          console.log("Turnstile token being sent:", turnstileToken);
+
+          // Updated anonymous sign-in call
+          const { data, error } = await supabase.auth.signInAnonymously({
+            captchaToken: turnstileToken,
           });
-          if (error) throw error;
-          console.log("Anonymous sign-in successful");
+
+          if (error) {
+            throw error;
+          }
+
+          console.log("Anonymous sign-in successful:", data);
+          setSession(data.session);
         } else {
-          console.log("Active session found");
+          console.log("Active session found:", session);
         }
       } catch (error) {
-        console.error(
-          "Error during authentication initialization:",
-          error.message,
-        );
+        console.error("Error during authentication initialization:");
+        console.error("Error message:", error.message);
+        console.error("Full error object:", JSON.stringify(error, null, 2));
       }
     };
 
