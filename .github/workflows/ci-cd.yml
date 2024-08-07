@@ -50,6 +50,8 @@ jobs:
         wait-on: 'http://localhost:3000'
       env:
         REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+        REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+        REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
 
     - name: Upload Cypress screenshots
       uses: actions/upload-artifact@v3

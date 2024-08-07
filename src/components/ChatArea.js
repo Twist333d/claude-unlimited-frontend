@@ -1,37 +1,53 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
-import axios from "axios";
 import config from "../config"; // Import the config object
 import LoadingIndicator from "./LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "./ErrorBoundary";
+import { supabase } from "../index";
 
 function ChatArea({
   currentConversationId,
   setCurrentConversationId,
   updateConversation,
   setConversations,
+  session,
 }) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Use useCallback to memoize the fetchMessages function
-  const fetchMessages = useCallback(async (conversationId) => {
-    try {
-      const response = await axios.get(
-        `${config.apiUrl}/conversations/${conversationId}/messages`,
-      ); // Use config.apiUrl
-      setMessages(
-        response.data.map((msg) => ({
-          content: msg.content,
-          sender: msg.role, // Assuming the backend sends 'role' instead of 'sender'
-        })),
-      );
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
-  }, []); // Empty dependency array as it doesn't depend on any props or state
+  const fetchMessages = useCallback(
+    async (conversationId) => {
+      if (!session) return;
+      try {
+        const response = await fetch(
+          `${config.apiUrl}/conversations/${conversationId}/messages`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        setMessages(
+          data.map((msg) => ({
+            content: msg.content,
+            sender: msg.role,
+          })),
+        );
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    },
+    [session],
+  ); // Empty dependency array as it doesn't depend on any props or state
 
   // Use useEffect to fetch messages when currentConversationId changes
   useEffect(() => {
@@ -45,18 +61,43 @@ function ChatArea({
   // Use useCallback to memoize the addMessage function
   const addMessage = useCallback(
     async (content) => {
+      if (!session) {
+        console.error("No active session");
+        try {
+          const { error } = await supabase.auth.signInAnonymously();
+          if (error) throw error;
+          console.log("Re-authenticated anonymously");
+          // Optionally, you could recall addMessage here after successful re-auth
+        } catch (error) {
+          console.error("Failed to re-authenticate:", error);
+          return;
+        }
+      }
+
       const newMessage = { content, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setIsLoading(true);
 
       try {
-        const response = await axios.post(`${config.apiUrl}/chat`, {
-          conversation_id: currentConversationId,
-          message: content,
+        const response = await fetch(`${config.apiUrl}/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            conversation_id: currentConversationId,
+            message: content,
+          }),
         });
 
-        const newConversationId =
-          response.data.conversation_id || currentConversationId;
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+
+        const newConversationId = data.conversation_id || currentConversationId;
 
         if (currentConversationId === null) {
           // This is a new conversation
@@ -64,7 +105,7 @@ function ChatArea({
           setConversations((prevConversations) => [
             {
               id: newConversationId,
-              title: response.data.title, // Use first 30 chars of message as title
+              title: data.title,
               last_message_at: new Date().toISOString(),
             },
             ...prevConversations.filter((conv) => conv.id !== null),
@@ -76,7 +117,7 @@ function ChatArea({
 
         setMessages((prevMessages) => [
           ...prevMessages,
-          { content: response.data.response, sender: "assistant" },
+          { content: data.response, sender: "assistant" },
         ]);
       } catch (error) {
         console.error("Error sending message:", error);
@@ -89,6 +130,7 @@ function ChatArea({
       setCurrentConversationId,
       setConversations,
       updateConversation,
+      session,
     ],
   );
 

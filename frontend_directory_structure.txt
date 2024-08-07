@@ -1,0 +1,60 @@
+.env
+.env.example
+.github/
+    workflows/
+.gitignore
+.husky/
+    _/
+        .gitignore
+cypress/
+    e2e/
+        chat_flow.cy.js
+    fixtures/
+        example.json
+    screenshots/
+        chat_flow.cy.js/
+    support/
+        commands.js
+        e2e.js
+cypress.config.js
+package-lock.json
+package.json
+postcss.config.js
+public/
+    index.html
+    manifest.json
+README.MD
+scripts/
+    generateProjectStructure.js
+src/
+    App.js
+    assets/
+    components/
+        ChatArea.js
+        ErrorBoundary.js
+        Header.js
+        LoadingIndicator.js
+        MarkdownMessage.js
+        Message.js
+        MessageInput.js
+        Sidebar.js
+    config.js
+    index.js
+    logo.svg
+    reportWebVitals.js
+    setupTests.js
+    styles/
+        tailwind.css
+    utils/
+        logger.js
+        numberFormatting.js
+        timeFormatting.js
+        turnstile.js
+    __tests__/
+        components/
+            Header.test.js
+            Sidebar.test.js
+tailwind.config.js
+TODO.md
+Web design rules.md
+webpack.config.js
