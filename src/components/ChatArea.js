@@ -62,18 +62,9 @@ function ChatArea({
   const addMessage = useCallback(
     async (content) => {
       if (!session) {
-        console.error("No active session");
-        try {
-          const { error } = await supabase.auth.signInAnonymously();
-          if (error) throw error;
-          console.log("Re-authenticated anonymously");
-          // Optionally, you could recall addMessage here after successful re-auth
-        } catch (error) {
-          console.error("Failed to re-authenticate:", error);
-          return;
-        }
+        console.error("No active session, cannot send message");
+        return;
       }
-
       const newMessage = { content, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setIsLoading(true);

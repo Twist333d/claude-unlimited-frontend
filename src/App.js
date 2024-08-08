@@ -5,7 +5,7 @@ import ChatArea from "./components/ChatArea";
 import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./index";
-import { initializeTurnstile, getTurnstileToken } from "./utils/turnstile";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,100 +14,133 @@ function App() {
   const [usage, setUsage] = useState({ total_tokens: 0, total_cost: 0 });
   const MemoizedSidebar = memo(Sidebar);
   const [session, setSession] = useState(null);
-  const [turnstileToken, setTurnstileToken] = useState(null);
-  const [turnstileReady, setTurnstileReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
-  useEffect(() => {
-    console.log("Initializing Turnstile...");
-    initializeTurnstile(config.turnstileSiteKey)
-      .then((token) => {
-        console.log("Turnstile initialized and token obtained:", token);
-        setTurnstileToken(token);
-        setTurnstileReady(true);
-      })
-      .catch((error) => {
-        console.error("Failed to initialize Turnstile:", error);
-      });
+  const handleTurnstileCallback = useCallback((token) => {
+    console.log("Turnstile token:", token);
+    // You can use this token when making requests to your backend
   }, []);
 
   useEffect(() => {
+    // Render the Turnstile widget
+    if (window.turnstile) {
+      window.turnstile.render("#turnstile-container", {
+        sitekey: config.turnstileSiteKey,
+        callback: handleTurnstileCallback,
+      });
+    }
+  }, [handleTurnstileCallback]);
+
+  useEffect(() => {
     const initializeAuth = async () => {
-      if (!turnstileReady || !turnstileToken) {
-        console.log(
-          "Turnstile not ready or no token available, skipping auth initialization",
-        );
-        return;
-      }
-
+      setIsLoading(true);
       try {
-        console.log("Checking Supabase session...");
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        setSession(session);
-
-        if (!session) {
-          console.log("No active session, attempting anonymous sign-in");
-          console.log("Turnstile token being sent:", turnstileToken);
-
-          // Updated anonymous sign-in call
-          const { data, error } = await supabase.auth.signInAnonymously({
-            captchaToken: turnstileToken,
-          });
-
-          if (error) {
-            throw error;
-          }
-
-          console.log("Anonymous sign-in successful:", data);
-          setSession(data.session);
+        // Check localStorage first
+        const storedToken = localStorage.getItem("supabase.auth.token");
+        if (storedToken) {
+          const {
+            data: { user },
+            error,
+          } = await supabase.auth.getUser(storedToken);
+          if (error) throw error;
+          setSession({ access_token: storedToken, user });
+          console.log("Restored session from localStorage");
         } else {
-          console.log("Active session found:", session);
+          // If no token in localStorage, check for existing session
+          const {
+            data: { session: existingSession },
+          } = await supabase.auth.getSession();
+          if (existingSession) {
+            setSession(existingSession);
+            localStorage.setItem(
+              "supabase.auth.token",
+              existingSession.access_token,
+            );
+            console.log("Restored existing session");
+          } else {
+            // If no session, sign in anonymously
+            const { data, error } = await supabase.auth.signInAnonymously();
+            if (error) throw error;
+            setSession(data.session);
+            localStorage.setItem(
+              "supabase.auth.token",
+              data.session.access_token,
+            );
+            console.log("Signed in anonymously:", data.session);
+          }
         }
       } catch (error) {
-        console.error("Error during authentication initialization:");
-        console.error("Error message:", error.message);
-        console.error("Full error object:", JSON.stringify(error, null, 2));
+        console.error("Auth error:", error);
+        setSession(null);
+        localStorage.removeItem("supabase.auth.token");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     initializeAuth();
-  }, [turnstileReady, turnstileToken]);
 
-  useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed", _event);
-      setSession(session);
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
+      if (session) {
+        setSession(session);
+        localStorage.setItem("supabase.auth.token", session.access_token);
+      } else {
+        setSession(null);
+        localStorage.removeItem("supabase.auth.token");
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
+  useEffect(() => {
+    if (!session) {
+      supabase.auth.signInAnonymously().then(async ({ data, error }) => {
+        if (error) {
+          console.error("Error signing in anonymously:", error);
+        } else {
+          console.log("Signed in anonymously:", data);
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser(data.session.access_token);
+          if (userError) {
+            console.error("Error fetching user:", userError);
+            setSession(null);
+            localStorage.removeItem("supabase.auth.token");
+          } else {
+            setSession({ ...data.session, user });
+            localStorage.setItem(
+              "supabase.auth.token",
+              data.session.access_token,
+            );
+          }
+        }
+      });
+    }
+  }, [session]);
+
   const fetchConversations = useCallback(async () => {
-    if (!session) return;
+    if (!session) {
+      console.log("No active session, skipping fetch");
+      return;
+    }
     try {
-      const {
-        data: { session: currentSession },
-        error,
-      } = await supabase.auth.getSession();
-      if (error) throw error;
-      if (!currentSession) throw new Error("No active session");
-
-      console.log("Current session:", currentSession);
-      console.log("Access token:", currentSession.access_token);
-
       const response = await fetch(`${config.apiUrl}/conversations`, {
         headers: {
-          Authorization: `Bearer ${currentSession.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -152,9 +185,14 @@ function App() {
   useEffect(() => {
     if (session) {
       fetchConversations();
+    }
+  }, [session, fetchConversations]);
+
+  useEffect(() => {
+    if (session && currentConversationId) {
       fetchUsage(currentConversationId);
     }
-  }, [fetchConversations, fetchUsage, currentConversationId, session]);
+  }, [session, currentConversationId, fetchUsage]);
 
   // Update the updateConversation function
   const updateConversation = useCallback(
@@ -167,7 +205,6 @@ function App() {
                 title:
                   conv.title === "New Conversation" ? newMessage : conv.title,
                 last_message: newMessage,
-                last_message_at: new Date().toISOString(),
               }
             : conv,
         ),
@@ -203,7 +240,9 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
-      <div id="turnstile-container" style={{ display: "none" }}></div>
+      <div id="turnstile-container" className="hidden opacity-0">
+        >
+      </div>
       <Header
         sidebarOpen={sidebarOpen}
         toggleSidebar={toggleSidebar}
@@ -230,6 +269,7 @@ function App() {
           />
         </main>
       </div>
+      <SpeedInsights />
       <Analytics
         debug={isDebug}
         beforeSend={(event) => {

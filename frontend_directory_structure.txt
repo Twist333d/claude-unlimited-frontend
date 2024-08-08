@@ -49,7 +49,6 @@ src/
         logger.js
         numberFormatting.js
         timeFormatting.js
-        turnstile.js
     __tests__/
         components/
             Header.test.js
