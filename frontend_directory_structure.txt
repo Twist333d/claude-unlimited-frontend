@@ -17,6 +17,7 @@ cypress/
         commands.js
         e2e.js
 cypress.config.js
+Modular structure plan.md
 package-lock.json
 package.json
 postcss.config.js
@@ -27,25 +28,35 @@ README.MD
 scripts/
     generateProjectStructure.js
 src/
+    api/
+        client.js
+        endpoints.js
+        methods.js
     App.js
     assets/
+    auth/
     components/
         ChatArea.js
+        common/
         ErrorBoundary.js
         Header.js
+        layout/
         LoadingIndicator.js
         MarkdownMessage.js
         Message.js
         MessageInput.js
         Sidebar.js
     config.js
+    hooks/
     index.js
     logo.svg
     reportWebVitals.js
+    services/
     setupTests.js
     styles/
         tailwind.css
     utils/
+        errorHandler.js
         logger.js
         numberFormatting.js
         timeFormatting.js
@@ -53,7 +64,7 @@ src/
         components/
             Header.test.js
             Sidebar.test.js
+supabase-auth.md
 tailwind.config.js
-TODO.md
 Web design rules.md
 webpack.config.js

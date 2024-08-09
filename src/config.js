@@ -3,6 +3,7 @@ const config = {
   supabaseUrl: process.env.REACT_APP_SUPABASE_URL,
   supabaseAnonKey: process.env.REACT_APP_SUPABASE_ANON_KEY,
   turnstileSiteKey: process.env.REACT_APP_TURNSTILE_SITE_KEY,
+  logLevl: process.env.REACT_APP_LOG_LEVEL,
 };
 
 // Remove any trailing slash from apiUrl

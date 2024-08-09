@@ -1,4 +1,0 @@
-- Fix authentication
-- Re-factor the API methods into separate functions
-- Re-factor auth memthods into separate functions
-- Re-factor tests to make sure they cover the functionality
