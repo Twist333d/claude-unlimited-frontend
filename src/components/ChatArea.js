@@ -5,7 +5,6 @@ import config from "../config"; // Import the config object
 import LoadingIndicator from "./LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "./ErrorBoundary";
-import { supabase } from "../index";
 
 function ChatArea({
   currentConversationId,

@@ -6,6 +6,7 @@ import config from "./config"; // Import the config object
 import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./index";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { debounce } from "lodash";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,7 +38,6 @@ function App() {
     const initializeAuth = async () => {
       setIsLoading(true);
       try {
-        // Check localStorage first
         const storedToken = localStorage.getItem("supabase.auth.token");
         if (storedToken) {
           const {
@@ -48,7 +48,6 @@ function App() {
           setSession({ access_token: storedToken, user });
           console.log("Restored session from localStorage");
         } else {
-          // If no token in localStorage, check for existing session
           const {
             data: { session: existingSession },
           } = await supabase.auth.getSession();
@@ -60,7 +59,6 @@ function App() {
             );
             console.log("Restored existing session");
           } else {
-            // If no session, sign in anonymously
             const { data, error } = await supabase.auth.signInAnonymously();
             if (error) throw error;
             setSession(data.session);
@@ -84,7 +82,7 @@ function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event);
       if (session) {
         setSession(session);
@@ -100,59 +98,35 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!session) {
-      supabase.auth.signInAnonymously().then(async ({ data, error }) => {
-        if (error) {
-          console.error("Error signing in anonymously:", error);
-        } else {
-          console.log("Signed in anonymously:", data);
-          const {
-            data: { user },
-            error: userError,
-          } = await supabase.auth.getUser(data.session.access_token);
-          if (userError) {
-            console.error("Error fetching user:", userError);
-            setSession(null);
-            localStorage.removeItem("supabase.auth.token");
-          } else {
-            setSession({ ...data.session, user });
-            localStorage.setItem(
-              "supabase.auth.token",
-              data.session.access_token,
-            );
-          }
-        }
-      });
-    }
-  }, [session]);
-
-  const fetchConversations = useCallback(async () => {
-    if (!session) {
-      console.log("No active session, skipping fetch");
-      return;
-    }
-    try {
-      const response = await fetch(`${config.apiUrl}/conversations`, {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const fetchConversations = useCallback(
+    debounce(async (session) => {
+      if (!session) {
+        console.log("No active session, skipping fetch");
+        return;
       }
+      try {
+        const response = await fetch(`${config.apiUrl}/conversations`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
 
-      const data = await response.json();
-      setConversations(data);
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-    }
-  }, [session]);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setConversations(data);
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      }
+    }, 300), // 300ms debounce
+    [],
+  );
 
   // fetch usage on component mount
   const fetchUsage = useCallback(
-    async (conversationId = null) => {
+    debounce(async (session, conversationId) => {
       if (!session || !conversationId) {
         setUsage({ total_tokens: 0, total_cost: 0 });
         return;
@@ -177,8 +151,8 @@ function App() {
         console.error("Error fetching usage stats:", error);
         setUsage({ total_tokens: 0, total_cost: 0 });
       }
-    },
-    [session],
+    }, 300), // 300ms debounce
+    [],
   );
 
   // fetch conversations & usage stats on component mount
