@@ -1,6 +1,6 @@
 import React from "react";
 import MarkdownMessage from "./MarkdownMessage";
-import ErrorBoundary from "./ErrorBoundary";
+import ErrorBoundary from "./common/ErrorBoundary";
 
 const Message = React.memo(function Message({ content, sender }) {
   console.log("Message content:", content);

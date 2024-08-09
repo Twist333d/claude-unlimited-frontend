@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
 import config from "../config"; // Import the config object
-import LoadingIndicator from "./LoadingIndicator";
+import LoadingIndicator from "./common/LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
-import ErrorBoundary from "./ErrorBoundary";
+import ErrorBoundary from "./common/ErrorBoundary";
 
 function ChatArea({
   currentConversationId,

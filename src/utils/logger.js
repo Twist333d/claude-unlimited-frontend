@@ -1,21 +1,35 @@
-const logLevel = process.env.REACT_APP_LOG_LEVEL || "info";
-
-const levels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  debug: 3,
+const LOG_LEVELS = {
+  ERROR: 0,
+  WARN: 1,
+  INFO: 2,
+  DEBUG: 3,
 };
 
-const log = (level, ...args) => {
-  if (levels[level] <= levels[logLevel]) {
-    console[level](...args);
-  }
+const currentLogLevel = LOG_LEVELS[process.env.REACT_APP_LOG_LEVEL || "INFO"];
+
+const formatMessage = (level, message) => {
+  return `[${new Date().toISOString()}] ${level}: ${message}`;
 };
 
 export const logger = {
-  error: (...args) => log("error", ...args),
-  warn: (...args) => log("warn", ...args),
-  info: (...args) => log("info", ...args),
-  debug: (...args) => log("debug", ...args),
+  error: (message, ...args) => {
+    if (currentLogLevel >= LOG_LEVELS.ERROR) {
+      console.error(formatMessage("ERROR", message), ...args);
+    }
+  },
+  warn: (message, ...args) => {
+    if (currentLogLevel >= LOG_LEVELS.WARN) {
+      console.warn(formatMessage("WARN", message), ...args);
+    }
+  },
+  info: (message, ...args) => {
+    if (currentLogLevel >= LOG_LEVELS.INFO) {
+      console.info(formatMessage("INFO", message), ...args);
+    }
+  },
+  debug: (message, ...args) => {
+    if (currentLogLevel >= LOG_LEVELS.DEBUG) {
+      console.debug(formatMessage("DEBUG", message), ...args);
+    }
+  },
 };
