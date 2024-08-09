@@ -24,19 +24,21 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     logger.error(`Request interceptor error: ${error.message}`, error);
-    return Promise.reject(error);
+    return Promise.reject(handleApiError(error));
   },
 );
 
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    logger.error(`Response interceptor error: ${error.message}`, {
+    const classifiedError = handleApiError(error);
+    logger.error(`Response interceptor error: ${classifiedError.message}`, {
+      type: classifiedError.type,
       url: error.config?.url,
       method: error.config?.method,
       status: error.response?.status,
     });
-    return handleApiError(error);
+    return Promise.reject(classifiedError);
   },
 );
 

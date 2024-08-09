@@ -1,7 +1,7 @@
 import apiClient from "./client";
 import { ENDPOINTS } from "./endpoints";
 import { logger } from "../utils/logger";
-import { getErrorMessage } from "../utils/errorHandler";
+import { getErrorMessage, handleApiError } from "../utils/errorHandler";
 
 const standardizeResponse = (response) => ({
   success: true,
@@ -20,61 +20,33 @@ const handleResponse = (response) => {
 };
 
 const handleError = (error) => {
-  logger.error(`API call failed: ${error.config?.url || "Unknown URL"}`, error);
+  const classifiedError = handleApiError(error);
   return {
     success: false,
     data: null,
     metadata: null,
-    error: getErrorMessage(error),
+    error: classifiedError,
   };
 };
 
+const createApiMethod =
+  (method) =>
+  async (...args) => {
+    try {
+      const response = await method(...args);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  };
+
 export const apiMethods = {
   // Generic methods
-  get: async (url, params) => {
-    try {
-      const response = await apiClient.get(url, { params });
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  post: async (url, data) => {
-    try {
-      const response = await apiClient.post(url, data);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  put: async (url, data) => {
-    try {
-      const response = await apiClient.put(url, data);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  patch: async (url, data) => {
-    try {
-      const response = await apiClient.patch(url, data);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  delete: async (url) => {
-    try {
-      const response = await apiClient.delete(url);
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
+  get: createApiMethod(apiClient.get),
+  post: createApiMethod(apiClient.post),
+  put: createApiMethod(apiClient.put),
+  patch: createApiMethod(apiClient.patch),
+  delete: createApiMethod(apiClient.delete),
 
   // Specific API methods (using generic methods)
   getConversations: () => apiMethods.get(ENDPOINTS.CONVERSATIONS),
@@ -90,11 +62,4 @@ export const apiMethods = {
 
   getUsage: (conversationId) =>
     apiMethods.get(ENDPOINTS.USAGE, { conversation_id: conversationId }),
-
-  // Add these methods if your API supports them
-  updateConversation: (conversationId, data) =>
-    apiMethods.put(ENDPOINTS.CONVERSATIONS + `/${conversationId}`, data),
-
-  deleteConversation: (conversationId) =>
-    apiMethods.delete(ENDPOINTS.CONVERSATIONS + `/${conversationId}`),
 };

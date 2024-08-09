@@ -50,10 +50,16 @@ src/
         Sidebar.js
     config.js
     hooks/
+        useApi.js
+        useConversation.js
+        useMessages.js
     index.js
     logo.svg
     reportWebVitals.js
     services/
+        chatService.js
+        conversationService.js
+        userService.js
     setupTests.js
     styles/
         tailwind.css
