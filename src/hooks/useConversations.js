@@ -1,5 +1,5 @@
 // hooks/useConversations.js
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { conversationService } from "../services/conversationService";
 import { logger } from "../utils/logger";
 
@@ -8,6 +8,7 @@ export const useConversations = (session) => {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const sessionRef = useRef(session);
 
   const getConversations = useCallback(async () => {
     console.log("Fetching conversations..."); // Added for debugging
@@ -30,7 +31,11 @@ export const useConversations = (session) => {
   }, []);
 
   useEffect(() => {
-    if (session) {
+    sessionRef.current = session;
+  }, [session]);
+
+  useEffect(() => {
+    if (sessionRef.current) {
       getConversations();
     }
   }, [getConversations]);

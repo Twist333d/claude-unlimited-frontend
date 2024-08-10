@@ -66,6 +66,7 @@ function App() {
           usageLoading={usageLoading}
           usageError={usageError}
           logout={logout}
+          currentConversationId={currentConversationId}
         />
         <div className="flex-1 flex overflow-hidden">
           <Sidebar

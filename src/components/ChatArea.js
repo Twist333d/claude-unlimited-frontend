@@ -15,21 +15,23 @@ function ChatArea({ currentConversationId, session }) {
     session,
   );
 
-  // Use the useConversations hook to get the updateConversation function
-  const { updateConversation } = useConversations(session);
-
   // Handler for sending messages
   const handleSendMessage = useCallback(
     async (content) => {
+      console.log("Attempting to send message:", content);
       if (!session) {
         console.error("No active session, cannot send message");
         return;
       }
-      await sendMessage(content);
-      // Update the conversation with the new message
-      updateConversation(currentConversationId, content);
+      try {
+        console.log("Calling sendMessage function");
+        await sendMessage(content);
+        console.log("Message sent successfully");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     },
-    [currentConversationId, sendMessage, updateConversation, session],
+    [session, sendMessage],
   );
 
   return (

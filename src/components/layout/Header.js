@@ -3,16 +3,30 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { formatTokensOrCost } from "../../utils/numberFormatting";
+import { useUsage } from "../../hooks/useUsage";
 import {
   CogIcon,
   CurrencyDollarIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 
-function Header({ sidebarOpen, setSidebarOpen, usage }) {
+function Header({
+  sidebarOpen,
+  setSidebarOpen,
+  session,
+  currentConversationId,
+}) {
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(!sidebarOpen);
   }, [sidebarOpen, setSidebarOpen]);
+
+  const { usage, fetchUsage } = useUsage(session, currentConversationId);
+
+  useEffect(() => {
+    if (session && currentConversationId) {
+      fetchUsage();
+    }
+  }, [session, currentConversationId, fetchUsage]);
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import { useConversations } from "../../hooks/useConversations";
 import {
   ChatBubbleBottomCenterIcon,
@@ -40,13 +40,13 @@ const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
   );
 });
 
-function Sidebar({ sidebarOpen, toggleSidebar }) {
+function Sidebar({ sidebarOpen, toggleSidebar, session }) {
   const {
     conversations,
     currentConversationId,
     selectConversation,
     startNewConversation,
-  } = useConversations();
+  } = useConversations(session);
 
   const sortedConversations = useMemo(() => {
     return [...conversations].sort((a, b) => {

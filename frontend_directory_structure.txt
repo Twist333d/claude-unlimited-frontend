@@ -66,7 +66,6 @@ src/
     logo.svg
     reportWebVitals.js
     services/
-        chatService.js
         conversationService.js
         userService.js
     setupTests.js
