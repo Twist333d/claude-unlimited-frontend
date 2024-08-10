@@ -1,3 +1,8 @@
+// hooks/useConversations.js
+import { useState, useCallback } from "react";
+import { logger } from "../utils/logger";
+import { apiMethods } from "../api/methods";
+
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

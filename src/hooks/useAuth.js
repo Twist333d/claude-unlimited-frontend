@@ -8,17 +8,12 @@ export const useAuth = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedSession = localStorage.getItem("supabase.auth.token");
-      if (storedSession) {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser(storedSession);
-        if (!error && user) {
-          setSession({ access_token: storedSession, user });
-        } else {
-          await signInAnonymously();
-        }
+      const {
+        data: { session: currentSession },
+        error,
+      } = await supabase.auth.getSession();
+      if (currentSession) {
+        setSession(currentSession);
       } else {
         await signInAnonymously();
       }
@@ -31,7 +26,6 @@ export const useAuth = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      localStorage.setItem("supabase.auth.token", session?.access_token || "");
     });
 
     return () => subscription.unsubscribe();
@@ -43,7 +37,6 @@ export const useAuth = () => {
       console.error("Error signing in anonymously:", error);
     } else if (data?.session) {
       setSession(data.session);
-      localStorage.setItem("supabase.auth.token", data.session.access_token);
     }
   };
 

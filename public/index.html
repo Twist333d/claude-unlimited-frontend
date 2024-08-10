@@ -13,6 +13,12 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script>
+      window.onloadTurnstileCallback = function () {
+        // Turnstile is ready to be used
+        // The useTurnstile hook will handle the rendering
+      }
+    </script>
     <!-- Add the following line to include the Inter font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Claude Unlimited</title>
@@ -20,5 +26,6 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <div id="turnstile-container"></div>
   </body>
 </html>

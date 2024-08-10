@@ -1,3 +1,8 @@
+// hooks/useConversations.js
+import { useState, useCallback } from "react";
+import { conversationService } from "../services/conversationService";
+import { logger } from "../utils/logger";
+
 export const useConversations = () => {
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);

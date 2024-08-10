@@ -3,7 +3,7 @@ import { useEffect, useCallback, useRef } from "react";
 import config from "../config";
 
 export const useTurnstile = () => {
-  const turnstileRendered = useRef(false);
+  const widgetId = useRef(null);
 
   const handleTurnstileCallback = useCallback((token) => {
     console.log("Turnstile token:", token);
@@ -11,13 +11,37 @@ export const useTurnstile = () => {
   }, []);
 
   useEffect(() => {
-    if (window.turnstile && !turnstileRendered.current) {
-      window.turnstile.render("#turnstile-container", {
-        sitekey: config.turnstileSiteKey,
-        callback: handleTurnstileCallback,
-      });
-      turnstileRendered.current = true;
+    const renderTurnstile = () => {
+      if (window.turnstile && !widgetId.current) {
+        const container = document.getElementById("turnstile-container");
+        if (container) {
+          try {
+            widgetId.current = window.turnstile.render(container, {
+              sitekey: config.turnstileSiteKey,
+              callback: handleTurnstileCallback,
+              "refresh-expired": "auto",
+            });
+          } catch (error) {
+            console.error("Error rendering Turnstile:", error);
+          }
+        } else {
+          console.error("Turnstile container element not found");
+        }
+      }
+    };
+
+    if (document.readyState === "complete") {
+      renderTurnstile();
+    } else {
+      window.addEventListener("load", renderTurnstile);
+      return () => window.removeEventListener("load", renderTurnstile);
     }
+
+    return () => {
+      if (widgetId.current && window.turnstile) {
+        window.turnstile.remove(widgetId.current);
+      }
+    };
   }, [handleTurnstileCallback]);
 
   return null;

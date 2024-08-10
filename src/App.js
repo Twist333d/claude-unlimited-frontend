@@ -72,6 +72,7 @@ function App() {
             error={conversationsError}
             selectConversation={selectConversation}
             startNewConversation={startNewConversation}
+            session={session} // Add this line
           />
           <main className="flex-1 overflow-y-auto">
             <ChatArea
