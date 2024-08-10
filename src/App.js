@@ -48,7 +48,11 @@ function App() {
 
   // Show loading indicator while authentication is in progress
   if (authLoading) {
-    return <LoadingIndicator />;
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <LoadingIndicator />
+      </div>
+    );
   }
 
   return (

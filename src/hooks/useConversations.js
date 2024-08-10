@@ -1,19 +1,21 @@
 // hooks/useConversations.js
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { conversationService } from "../services/conversationService";
 import { logger } from "../utils/logger";
 
-export const useConversations = () => {
+export const useConversations = (session) => {
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const getConversations = useCallback(async () => {
+    console.log("Fetching conversations..."); // Added for debugging
     setLoading(true);
     setError(null);
     try {
       const result = await conversationService.getConversations();
+      console.log("Conversations result:", result); // Added for debugging
       if (result.success) {
         setConversations(result.data);
       } else {
@@ -27,15 +29,21 @@ export const useConversations = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (session) {
+      getConversations();
+    }
+  }, [getConversations]);
+
   const selectConversation = useCallback((id) => {
     setCurrentConversationId(id);
   }, []);
 
-  const startNewConversation = useCallback(async () => {
+  const startNewConversation = useCallback(async (title) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await conversationService.createConversation();
+      const result = await conversationService.createNewConversation(title);
       if (result.success) {
         setConversations((prevConversations) => [
           ...prevConversations,

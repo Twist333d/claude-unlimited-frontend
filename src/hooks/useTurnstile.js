@@ -1,3 +1,4 @@
+// hooks/useTurnstile.js
 import { useEffect, useCallback, useRef } from "react";
 import config from "../config";
 import { logger } from "../utils/logger";
@@ -35,7 +36,13 @@ export const useTurnstile = () => {
       }
     };
 
-    // Rest of the hook implementation...
+    renderTurnstile();
+
+    return () => {
+      if (widgetId.current) {
+        window.turnstile.remove(widgetId.current);
+      }
+    };
   }, [handleTurnstileCallback]);
 
   return null;

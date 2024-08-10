@@ -32,7 +32,7 @@ function MessageInput({ onSendMessage, isDisabled }) {
         textareaRef.current.style.height = "auto";
       }
     }
-  }, [inputText, onSendMessage, isDisabled]);
+  }, [inputText, onSendMessage, isDisabled, setInputText, textareaRef]);
 
   const handleKeyPress = useCallback(
     (e) => {

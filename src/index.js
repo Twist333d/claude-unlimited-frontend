@@ -7,14 +7,6 @@ import { logger } from "./utils/logger";
 import reportWebVitals from "./reportWebVitals";
 import { Analytics } from "@vercel/analytics/react";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <App />
-    <Analytics />
-  </React.StrictMode>,
-);
-
 if (!verifyEnvVars()) {
   logger.error("Application cannot start due to missing environment variables");
 } else {

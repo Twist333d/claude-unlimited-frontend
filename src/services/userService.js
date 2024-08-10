@@ -4,7 +4,7 @@ import { logger } from "../utils/logger";
 import { ENDPOINTS } from "../api/endpoints";
 
 export const userService = {
-  getUsage: (conversationId) => {
+  getUsageStats: (conversationId) => {
     logger.info("Fetching usage for conversation:", conversationId);
     return apiMethods.get(ENDPOINTS.USAGE, { conversation_id: conversationId });
   },

@@ -35,6 +35,7 @@ export const useApi = () => {
       callApi(apiMethods.sendMessage, conversationId, message),
     getUsageStats: (conversationId) =>
       callApi(apiMethods.getUsageStats, conversationId),
-    // Add other API methods as needed
+    createNewConversation: (title) =>
+      callApi(apiMethods.createNewConversation, title),
   };
 };

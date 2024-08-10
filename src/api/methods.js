@@ -1,3 +1,4 @@
+// methods.js
 import apiClient from "./client";
 import { ENDPOINTS } from "./endpoints";
 import { logger } from "../utils/logger";
@@ -60,6 +61,8 @@ export const apiMethods = {
       message,
     }),
 
-  getUsage: (conversationId) =>
+  getUsageStats: (conversationId) =>
     apiMethods.get(ENDPOINTS.USAGE, { conversation_id: conversationId }),
+  createNewConversation: (title) =>
+    apiMethods.post(ENDPOINTS.CONVERSATIONS, { title }),
 };

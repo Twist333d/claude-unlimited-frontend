@@ -5,19 +5,27 @@ import { supabase } from "../auth/supabaseClient";
 export const useAuth = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const {
-        data: { session: currentSession },
-        error,
-      } = await supabase.auth.getSession();
-      if (currentSession) {
-        setSession(currentSession);
-      } else {
-        await signInAnonymously();
+      try {
+        const {
+          data: { session: currentSession },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (currentSession) {
+          setSession(currentSession);
+        } else {
+          await signInAnonymously();
+        }
+      } catch (error) {
+        console.error("Error during authentication:", error.message);
+        setAuthError(error.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
@@ -45,5 +53,5 @@ export const useAuth = () => {
   const signup = () => console.log("Signup not yet implemented");
   const logout = () => console.log("Logout not yet implemented");
 
-  return { session, loading, login, signup, logout };
+  return { session, loading, login, signup, logout, authError };
 };
