@@ -1,8 +1,3 @@
-// hooks/useApi.js
-import { useState, useCallback } from "react";
-import { apiMethods } from "../api/methods";
-import { logger } from "../utils/logger";
-
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,10 +24,12 @@ export const useApi = () => {
     loading,
     error,
     getConversations: () => callApi(apiMethods.getConversations),
-    getMessages: (conversationId) =>
-      callApi(apiMethods.getMessages, conversationId),
+    getMessages: (conversationId, page) =>
+      callApi(apiMethods.getMessages, conversationId, page),
     sendMessage: (conversationId, message) =>
       callApi(apiMethods.sendMessage, conversationId, message),
+    getUsageStats: (conversationId) =>
+      callApi(apiMethods.getUsageStats, conversationId),
     // Add other API methods as needed
   };
 };

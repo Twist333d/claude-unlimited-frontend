@@ -6,7 +6,11 @@
 .husky/
     _/
         .gitignore
+Modular structure plan.md
+README.MD
+Web design rules.md
 cypress/
+    downloads/
     e2e/
         chat_flow.cy.js
     fixtures/
@@ -19,45 +23,46 @@ cypress/
 cypress.config.js
 detailed_refactoring_guide.md
 implementation_code_blocks.md
-Modular structure plan.md
 package-lock.json
 package.json
 postcss.config.js
 public/
     index.html
     manifest.json
-README.MD
-refactoring_guide.md
 scripts/
     generateProjectStructure.js
 src/
+    App.js
+    __tests__/
+        components/
+            Header.test.js
+            Sidebar.test.js
     api/
         client.js
         endpoints.js
         methods.js
-    App.js
-    assets/
     auth/
         supabaseClient.js
     components/
         ChatArea.js
+        ErrorMessage.js
+        MarkdownMessage.js
+        Message.js
+        MessageInput.js
         common/
             ErrorBoundary.js
             ErrorMessage.js
             LoadingIndicator.js
-        ErrorMessage.js
         layout/
             Header.js
             Sidebar.js
-        MarkdownMessage.js
-        Message.js
-        MessageInput.js
     config.js
     hooks/
         useApi.js
         useAuth.js
         useConversations.js
         useMessages.js
+        useUsage.js
     index.js
     logo.svg
     reportWebVitals.js
@@ -73,12 +78,5 @@ src/
         logger.js
         numberFormatting.js
         timeFormatting.js
-    __tests__/
-        components/
-            Header.test.js
-            Sidebar.test.js
-supabase-auth.md
 tailwind.config.js
-updated_detailed_implementation_plan_v2.md
-Web design rules.md
 webpack.config.js

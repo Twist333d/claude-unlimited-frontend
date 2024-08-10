@@ -59,5 +59,9 @@ export const useAuth = () => {
     }
   }, []);
 
-  return { session, loading, login, logout };
+  const getUserId = useCallback(() => {
+    return session?.user?.id || null;
+  }, [session]);
+
+  return { session, loading, login, logout, getUserId };
 };
