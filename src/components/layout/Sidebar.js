@@ -4,7 +4,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import { getRelativeTimeString } from "../utils/timeFormatting";
+import { getRelativeTimeString } from "../../utils/timeFormatting";
 
 // With this line
 function Sidebar({

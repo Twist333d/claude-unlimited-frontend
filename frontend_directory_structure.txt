@@ -42,16 +42,18 @@ src/
             ErrorBoundary.js
             ErrorMessage.js
             LoadingIndicator.js
-        Header.js
+        ErrorMessage.js
         layout/
+            Header.js
+            Sidebar.js
         MarkdownMessage.js
         Message.js
         MessageInput.js
-        Sidebar.js
     config.js
     hooks/
         useApi.js
-        useConversation.js
+        useAuth.js
+        useConversations.js
         useMessages.js
     index.js
     logo.svg

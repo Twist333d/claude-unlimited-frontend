@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { formatTokensOrCost } from "../utils/numberFormatting";
+import { formatTokensOrCost } from "../../utils/numberFormatting";
 import {
   CogIcon,
   CurrencyDollarIcon,

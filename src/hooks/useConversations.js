@@ -2,7 +2,7 @@
 // Provide methods to change the current conversation
 // Handle conversation metadata updates
 
-// hooks/useConversation.js
+// hooks/useConversations.js
 import { useState, useCallback } from "react";
 import { conversationService } from "../services/conversationService";
 import { logger } from "../utils/logger";

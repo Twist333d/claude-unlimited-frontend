@@ -1,7 +1,7 @@
 // src/__tests__/components/Sidebar.test.js
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/layout/Sidebar";
 
 describe("Sidebar component", () => {
   const mockConversations = [
