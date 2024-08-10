@@ -16,7 +16,7 @@ function App() {
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
   // Authentication hook
-  const { session, loading: authLoading, login, logout } = useAuth();
+  const { session, loading: authLoading, logout } = useAuth();
 
   // Conversations hook
   const {

@@ -1,3 +1,5 @@
+import config from "../config";
+
 const LOG_LEVELS = {
   ERROR: 0,
   WARN: 1,
@@ -5,7 +7,7 @@ const LOG_LEVELS = {
   DEBUG: 3,
 };
 
-const currentLogLevel = LOG_LEVELS[process.env.REACT_APP_LOG_LEVEL || "INFO"];
+const currentLogLevel = LOG_LEVELS[config.logLevel];
 
 const formatMessage = (level, message) => {
   return `[${new Date().toISOString()}] ${level}: ${message}`;

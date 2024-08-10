@@ -6,7 +6,6 @@
 .husky/
     _/
         .gitignore
-Modular structure plan.md
 README.MD
 Web design rules.md
 cypress/
@@ -21,8 +20,7 @@ cypress/
         commands.js
         e2e.js
 cypress.config.js
-detailed_refactoring_guide.md
-implementation_code_blocks.md
+issues.md
 package-lock.json
 package.json
 postcss.config.js

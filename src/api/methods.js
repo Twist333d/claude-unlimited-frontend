@@ -1,7 +1,7 @@
 import apiClient from "./client";
 import { ENDPOINTS } from "./endpoints";
 import { logger } from "../utils/logger";
-import { getErrorMessage, handleApiError } from "../utils/errorHandler";
+import { handleApiError } from "../utils/errorHandler";
 
 const standardizeResponse = (response) => ({
   success: true,
