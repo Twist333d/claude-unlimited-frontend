@@ -6,10 +6,6 @@ const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-supabase.auth.onError((error) => {
-  logger.error("Supabase auth error:", error);
-});
-
 export const signInAnonymously = async () => {
   try {
     const { user, error } = await supabase.auth.signIn({

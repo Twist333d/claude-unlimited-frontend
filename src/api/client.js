@@ -1,5 +1,5 @@
 import axios from "axios";
-import supabase from "../auth/supabaseClient";
+import { supabase } from "../auth/supabaseClient";
 import { handleApiError } from "../utils/errorHandler";
 import { logger } from "../utils/logger";
 

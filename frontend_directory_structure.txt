@@ -51,6 +51,7 @@ src/
         common/
             ErrorBoundary.js
             ErrorMessage.js
+            ErrorToast.js
             LoadingIndicator.js
         layout/
             Header.js
