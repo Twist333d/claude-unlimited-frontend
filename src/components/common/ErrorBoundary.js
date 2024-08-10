@@ -1,5 +1,7 @@
+// components/common/ErrorBoundary.js
 import React from "react";
-import { logger } from "../../utils/logger";
+import ErrorMessage from "./ErrorMessage";
+import { logError } from "../../utils/errorLogger";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,12 +14,19 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    logger.error("Error caught by ErrorBoundary:", error, errorInfo);
+    logError(error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || <h1>Something went wrong.</h1>;
+      return (
+        <ErrorMessage
+          error={{
+            type: "BOUNDARY_ERROR",
+            message: "An unexpected error occurred. Please try again later.",
+          }}
+        />
+      );
     }
 
     return this.props.children;

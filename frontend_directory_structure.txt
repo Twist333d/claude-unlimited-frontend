@@ -45,7 +45,6 @@ src/
         supabaseClient.js
     components/
         ChatArea.js
-        ErrorMessage.js
         MarkdownMessage.js
         Message.js
         MessageInput.js
@@ -62,6 +61,7 @@ src/
         useAuth.js
         useConversations.js
         useMessages.js
+        useTurnstile.js
         useUsage.js
     index.js
     logo.svg

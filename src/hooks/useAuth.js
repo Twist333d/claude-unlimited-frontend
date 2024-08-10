@@ -1,67 +1,56 @@
-// src/hooks/useAuth.js
-import { useState, useEffect, useCallback } from "react";
-import { supabase } from "../auth/supabaseClient";
+// hooks/useAuth.js
+import { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
 export const useAuth = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
+    const initializeAuth = async () => {
+      const storedSession = localStorage.getItem("supabase.auth.token");
+      if (storedSession) {
         const {
-          data: { session: currentSession },
+          data: { user },
           error,
-        } = await supabase.auth.getSession();
-        if (error) throw error;
-        setSession(currentSession);
-      } catch (error) {
-        console.error("Error checking session:", error);
-      } finally {
-        setLoading(false);
+        } = await supabase.auth.getUser(storedSession);
+        if (!error && user) {
+          setSession({ access_token: storedSession, user });
+        } else {
+          await signInAnonymously();
+        }
+      } else {
+        await signInAnonymously();
       }
+      setLoading(false);
     };
 
-    checkSession();
+    initializeAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      localStorage.setItem("supabase.auth.token", session?.access_token || "");
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
+  const signInAnonymously = async () => {
+    const { data, error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      console.error("Error signing in anonymously:", error);
+    } else if (data?.session) {
       setSession(data.session);
-    } catch (error) {
-      console.error("Error signing in:", error);
-    } finally {
-      setLoading(false);
+      localStorage.setItem("supabase.auth.token", data.session.access_token);
     }
-  }, []);
+  };
 
-  const logout = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setSession(null);
-    } catch (error) {
-      console.error("Error signing out:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Placeholder functions for future implementation
+  const login = () => console.log("Login not yet implemented");
+  const signup = () => console.log("Signup not yet implemented");
+  const logout = () => console.log("Logout not yet implemented");
 
-  const getUserId = useCallback(() => {
-    return session?.user?.id || null;
-  }, [session]);
-
-  return { session, loading, login, logout, getUserId };
+  return { session, loading, login, signup, logout };
 };
