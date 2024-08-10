@@ -1,6 +1,6 @@
 // Header.js
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { formatTokensOrCost } from "../../utils/numberFormatting";
 import {
@@ -10,9 +10,9 @@ import {
 } from "@heroicons/react/24/outline";
 
 function Header({ sidebarOpen, setSidebarOpen, usage }) {
-  const toggleSidebar = () => {
+  const toggleSidebar = useCallback(() => {
     setSidebarOpen(!sidebarOpen);
-  };
+  }, [sidebarOpen, setSidebarOpen]);
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -96,4 +96,4 @@ function HeaderInfo({ icon, label, value }) {
   );
 }
 
-export default Header;
+export default React.memo(Header);

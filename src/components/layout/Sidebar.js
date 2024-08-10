@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   ChatBubbleBottomCenterIcon,
   ChevronLeftIcon,
@@ -6,7 +6,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { getRelativeTimeString } from "../../utils/timeFormatting";
 
-// With this line
 function Sidebar({
   sidebarOpen,
   toggleSidebar,
@@ -15,16 +14,16 @@ function Sidebar({
   selectConversation,
   startNewConversation,
 }) {
-  const truncateMessage = (message, maxLength) => {
-    if (!message) return ""; // Add this line
+  const truncateMessage = useCallback((message, maxLength) => {
+    if (!message) return "";
     if (message.length <= maxLength) return message;
     return `${message.substring(0, maxLength)}...`;
-  };
+  }, []);
 
   const sortedConversations = useMemo(() => {
     return [...conversations].sort((a, b) => {
-      if (a.id === null) return -1; // New conversation goes to the top
-      if (b.id === null) return 1; // New conversation goes to the top
+      if (a.id === null) return -1;
+      if (b.id === null) return 1;
       const dateA = a.last_message_at
         ? new Date(a.last_message_at)
         : new Date(0);
@@ -34,6 +33,12 @@ function Sidebar({
       return dateB - dateA;
     });
   }, [conversations]);
+
+  const handleNewConversation = useCallback(() => {
+    if (currentConversationId) {
+      startNewConversation();
+    }
+  }, [currentConversationId, startNewConversation]);
 
   return (
     <div

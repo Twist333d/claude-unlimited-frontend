@@ -6,7 +6,7 @@ function MessageInput({ onSendMessage, isDisabled }) {
   const [inputText, setInputText] = useState("");
   const textareaRef = useRef(null);
 
-  const debouncedResize = useCallback(
+  const resizeTextarea = useCallback(
     debounce(() => {
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
@@ -17,16 +17,12 @@ function MessageInput({ onSendMessage, isDisabled }) {
   );
 
   useEffect(() => {
-    console.log("MessageInput rendered", textareaRef.current);
-  }, []);
+    resizeTextarea();
+  }, [inputText, resizeTextarea]);
 
-  const handleInputChange = useCallback(
-    (e) => {
-      setInputText(e.target.value);
-      debouncedResize();
-    },
-    [debouncedResize],
-  );
+  const handleInputChange = useCallback((e) => {
+    setInputText(e.target.value);
+  }, []);
 
   const handleSend = useCallback(() => {
     if (inputText.trim() && !isDisabled) {
@@ -38,12 +34,15 @@ function MessageInput({ onSendMessage, isDisabled }) {
     }
   }, [inputText, onSendMessage, isDisabled]);
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  const handleKeyPress = useCallback(
+    (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend],
+  );
 
   return (
     <div className="message-input-container bg-transparent p-4 sticky bottom-0">
