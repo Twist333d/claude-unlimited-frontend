@@ -56,7 +56,6 @@ src/
             Sidebar.js
     config.js
     contexts/
-        AuthProvider.js
         ErrorContext.js
     hooks/
         useApi.js
@@ -70,7 +69,6 @@ src/
     logo.svg
     reportWebVitals.js
     services/
-        conversationService.js
         userService.js
     setupTests.js
     styles/

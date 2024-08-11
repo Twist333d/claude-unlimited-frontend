@@ -1,6 +1,5 @@
 // Header.js
-
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { formatTokensOrCost } from "../../utils/numberFormatting";
 import { useUsage } from "../../hooks/useUsage";
@@ -11,19 +10,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
 
-function Header({
-  sidebarOpen,
-  toggleSidebar,
-  usage,
-  usageLoading,
-  usageError,
-  currentConversationId,
-}) {
+function Header({ sidebarOpen, toggleSidebar, currentConversationId }) {
   const { session, signOut } = useAuth();
-  const toggleSidebar = useCallback(() => {
-    setSidebarOpen(!sidebarOpen);
-  }, [sidebarOpen, setSidebarOpen]);
-
   const { usage, fetchUsage } = useUsage(currentConversationId);
 
   useEffect(() => {

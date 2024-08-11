@@ -1,11 +1,19 @@
-// hooks/useApi.js
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useAuth } from "./useAuth";
+import createApiClient from "../api/client";
+import createApiMethods from "../api/methods";
 import { logger } from "../utils/logger";
-import { apiMethods } from "../api/methods";
 
 export const useApi = () => {
+  const { getToken, refreshSession } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const apiClient = useMemo(
+    () => createApiClient(getToken, refreshSession),
+    [getToken, refreshSession],
+  );
+  const apiMethods = useMemo(() => createApiMethods(apiClient), [apiClient]);
 
   const callApi = useCallback(async (method, ...args) => {
     setLoading(true);
