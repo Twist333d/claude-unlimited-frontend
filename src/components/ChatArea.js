@@ -1,40 +1,17 @@
 // components/ChatArea.js
-import React, { useCallback } from "react";
+import React from "react";
 import MessageInput from "./MessageInput";
 import Message from "./Message";
 import LoadingIndicator from "./common/LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "./common/ErrorBoundary";
 import { useMessages } from "../hooks/useMessages";
-import { useError } from "../contexts/ErrorContext";
 
 function ChatArea({ currentConversationId, session }) {
   // Use the useMessages hook to manage messages state and operations
   const { messages, isLoading, sendMessage } = useMessages(
     currentConversationId,
     session,
-  );
-
-  // error context
-  const { showError } = useError();
-
-  // Handler for sending messages
-  const handleSendMessage = useCallback(
-    async (content) => {
-      console.log("Attempting to send message:", content);
-      if (!session) {
-        console.error("No active session, cannot send message");
-        return;
-      }
-      try {
-        console.log("Calling sendMessage function");
-        await sendMessage(content);
-        console.log("Message sent successfully");
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
-    },
-    [session, sendMessage],
   );
 
   return (
@@ -68,10 +45,7 @@ function ChatArea({ currentConversationId, session }) {
 
       {/* Message input area */}
       <ErrorBoundary>
-        <MessageInput
-          onSendMessage={handleSendMessage}
-          isDisabled={isLoading}
-        />
+        <MessageInput onSendMessage={sendMessage} isDisabled={isLoading} />
       </ErrorBoundary>
     </div>
   );

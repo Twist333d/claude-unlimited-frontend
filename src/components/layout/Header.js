@@ -23,10 +23,10 @@ function Header({
   const { usage, fetchUsage } = useUsage(session, currentConversationId);
 
   useEffect(() => {
-    if (session && currentConversationId) {
+    if (session) {
       fetchUsage();
     }
-  }, [session, currentConversationId, fetchUsage]);
+  }, [session, fetchUsage]);
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">

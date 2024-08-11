@@ -1,11 +1,27 @@
 // hooks/useAuth.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../auth/supabaseClient";
 
 export const useAuth = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
+
+  const refreshSession = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      if (data.session) {
+        setSession(data.session);
+      } else {
+        // If refresh fails, try anonymous sign-in
+        await signInAnonymously();
+      }
+    } catch (error) {
+      console.error("Error refreshing session:", error.message);
+      setAuthError(error.message);
+    }
+  }, []);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -53,5 +69,5 @@ export const useAuth = () => {
   const signup = () => console.log("Signup not yet implemented");
   const logout = () => console.log("Logout not yet implemented");
 
-  return { session, loading, login, signup, logout, authError };
+  return { session, loading, login, signup, logout, authError, refreshSession };
 };

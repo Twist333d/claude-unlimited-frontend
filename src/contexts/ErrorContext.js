@@ -5,20 +5,22 @@ import ErrorToast from "../components/common/ErrorToast";
 const ErrorContext = createContext();
 
 export const ErrorProvider = ({ children }) => {
-  const [error, setError] = useState(null);
+  const [globalError, setGlobalError] = useState(null);
 
-  const showError = (errorData) => {
-    setError(errorData);
+  const showGlobalError = (error) => {
+    setGlobalError(error);
   };
 
-  const clearError = () => {
-    setError(null);
+  const clearGlobalError = () => {
+    setGlobalError(null);
   };
 
   return (
-    <ErrorContext.Provider value={{ showError, clearError }}>
+    <ErrorContext.Provider value={{ showGlobalError, clearGlobalError }}>
       {children}
-      {error && <ErrorToast error={error} onClose={clearError} />}
+      {globalError && (
+        <ErrorToast error={globalError} onClose={clearGlobalError} />
+      )}
     </ErrorContext.Provider>
   );
 };

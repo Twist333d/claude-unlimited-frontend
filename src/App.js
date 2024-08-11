@@ -23,11 +23,8 @@ function App() {
   const {
     conversations,
     currentConversationId,
-    loading: conversationsLoading,
-    error: conversationsError,
-    selectConversation,
     startNewConversation,
-    updateConversation,
+    selectConversation,
   } = useConversations(session);
 
   // Usage statistics hook
@@ -75,16 +72,13 @@ function App() {
               sidebarOpen={sidebarOpen}
               conversations={conversations}
               currentConversationId={currentConversationId}
-              loading={conversationsLoading}
-              error={conversationsError}
               selectConversation={selectConversation}
               startNewConversation={startNewConversation}
-              session={session} // Add this line
+              session={session}
             />
             <main className="flex-1 overflow-y-auto">
               <ChatArea
                 currentConversationId={currentConversationId}
-                updateConversation={updateConversation}
                 session={session}
               />
             </main>

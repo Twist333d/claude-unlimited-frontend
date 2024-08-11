@@ -1,3 +1,4 @@
+// api/client.js
 import axios from "axios";
 import { supabase } from "../auth/supabaseClient";
 import { handleApiError } from "../utils/errorHandler";
@@ -6,7 +7,6 @@ import { logger } from "../utils/logger";
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "http://localhost:5001",
   timeout: 10000,
-  timeoutErrorMessage: "Request timeout",
   headers: {
     "Content-Type": "application/json",
   },
@@ -23,22 +23,33 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    logger.error(`Request interceptor error: ${error.message}`, error);
+    logger.error("Request interceptor error:", error);
     return Promise.reject(handleApiError(error));
   },
 );
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const classifiedError = handleApiError(error);
-    logger.error(`Response interceptor error: ${classifiedError.message}`, {
-      type: classifiedError.type,
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-    });
-    return Promise.reject(classifiedError);
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const { data, error: refreshError } =
+          await supabase.auth.refreshSession();
+        if (refreshError) throw refreshError;
+        if (data.session) {
+          apiClient.defaults.headers.common["Authorization"] =
+            `Bearer ${data.session.access_token}`;
+          return apiClient(originalRequest);
+        }
+      } catch (refreshError) {
+        logger.error("Token refresh failed:", refreshError);
+        return Promise.reject(handleApiError(refreshError));
+      }
+    }
+    logger.error("Response interceptor error:", error);
+    return Promise.reject(handleApiError(error));
   },
 );
 
