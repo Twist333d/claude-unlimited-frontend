@@ -51,8 +51,8 @@ export const useConversations = (session) => {
       const result = await conversationService.createNewConversation(title);
       if (result.success) {
         setConversations((prevConversations) => [
-          ...prevConversations,
           result.data,
+          ...prevConversations,
         ]);
         setCurrentConversationId(result.data.id);
       } else {

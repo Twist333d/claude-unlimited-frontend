@@ -1,8 +1,8 @@
 // api/client.js
 import axios from "axios";
-import { supabase } from "../auth/supabaseClient";
 import { handleApiError } from "../utils/errorHandler";
 import { logger } from "../utils/logger";
+import { supabase } from "../auth/supabaseClient";
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "http://localhost:5001",
@@ -16,7 +16,7 @@ apiClient.interceptors.request.use(
   async (config) => {
     const {
       data: { session },
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getSession(); // Redundant session fetching
     if (session?.access_token) {
       config.headers["Authorization"] = `Bearer ${session.access_token}`;
     }
@@ -36,7 +36,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const { data, error: refreshError } =
-          await supabase.auth.refreshSession();
+          await supabase.auth.refreshSession(); // Redundant session refresh
         if (refreshError) throw refreshError;
         if (data.session) {
           apiClient.defaults.headers.common["Authorization"] =
@@ -52,5 +52,4 @@ apiClient.interceptors.response.use(
     return Promise.reject(handleApiError(error));
   },
 );
-
 export default apiClient;
