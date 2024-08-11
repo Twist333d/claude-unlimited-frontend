@@ -50,7 +50,7 @@ export const useMessages = (conversationId) => {
     messages,
     loading,
     error,
-    sendMessage: handleSendMessage, // Rename for consistency
+    sendMessage: handleSendMessage,
     refreshMessages: fetchMessages,
   };
 };

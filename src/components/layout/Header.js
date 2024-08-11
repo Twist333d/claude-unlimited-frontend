@@ -9,18 +9,22 @@ import {
   CurrencyDollarIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
+import { useAuth } from "../../hooks/useAuth";
 
 function Header({
   sidebarOpen,
-  setSidebarOpen,
-  session,
+  toggleSidebar,
+  usage,
+  usageLoading,
+  usageError,
   currentConversationId,
 }) {
+  const { session, signOut } = useAuth();
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(!sidebarOpen);
   }, [sidebarOpen, setSidebarOpen]);
 
-  const { usage, fetchUsage } = useUsage(session, currentConversationId);
+  const { usage, fetchUsage } = useUsage(currentConversationId);
 
   useEffect(() => {
     if (session) {

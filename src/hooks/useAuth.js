@@ -1,25 +1,72 @@
-// hooks/useAuth.js
-import { useState, useEffect, useCallback } from "react";
+// src/hooks/useAuth.js
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  createContext,
+} from "react";
 import { supabase } from "../auth/supabaseClient";
+import { logger } from "../utils/logger";
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const auth = useProvideAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
 
 export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
+function useProvideAuth() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authError, setAuthError] = useState(null);
+  const [error, setError] = useState(null);
 
   const refreshSession = useCallback(async () => {
     try {
       const { data, error } = await supabase.auth.refreshSession();
       if (error) throw error;
-      if (data.session) {
-        setSession(data.session);
-      } else {
-        // If refresh fails, try anonymous sign-in
-        await signInAnonymously();
-      }
+      setSession(data.session);
+      return data.session;
     } catch (error) {
-      console.error("Error refreshing session:", error.message);
-      setAuthError(error.message);
+      logger.error("Error refreshing session:", error.message);
+      setError(error.message);
+      return null;
+    }
+  }, []);
+
+  const getToken = useCallback(() => {
+    return session?.access_token;
+  }, [session]);
+
+  const signInAnonymously = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      setSession(data.session);
+      return data.session;
+    } catch (error) {
+      logger.error("Error signing in anonymously:", error.message);
+      setError(error.message);
+      return null;
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setSession(null);
+    } catch (error) {
+      logger.error("Error signing out:", error.message);
+      setError(error.message);
     }
   }, []);
 
@@ -31,14 +78,13 @@ export const useAuth = () => {
           error,
         } = await supabase.auth.getSession();
         if (error) throw error;
-        if (currentSession) {
-          setSession(currentSession);
-        } else {
+        setSession(currentSession);
+        if (!currentSession) {
           await signInAnonymously();
         }
       } catch (error) {
-        console.error("Error during authentication:", error.message);
-        setAuthError(error.message);
+        logger.error("Error during authentication:", error.message);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -53,21 +99,15 @@ export const useAuth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [signInAnonymously]);
 
-  const signInAnonymously = async () => {
-    const { data, error } = await supabase.auth.signInAnonymously();
-    if (error) {
-      console.error("Error signing in anonymously:", error);
-    } else if (data?.session) {
-      setSession(data.session);
-    }
+  return {
+    session,
+    loading,
+    error,
+    refreshSession,
+    getToken,
+    signInAnonymously,
+    signOut,
   };
-
-  // Placeholder functions for future implementation
-  const login = () => console.log("Login not yet implemented");
-  const signup = () => console.log("Signup not yet implemented");
-  const logout = () => console.log("Logout not yet implemented");
-
-  return { session, loading, login, signup, logout, authError, refreshSession };
-};
+}

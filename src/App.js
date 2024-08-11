@@ -11,13 +11,14 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTurnstile } from "./hooks/useTurnstile";
 import { ErrorProvider } from "./contexts/ErrorContext";
+import { AuthProvider } from "./hooks/useAuth";
 
-function App() {
+function AppContent() {
   // Debug settings
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
   // Authentication hook
-  const { session, loading: authLoading, logout } = useAuth();
+  const { session, loading: authLoading, signOut } = useAuth();
 
   // Conversations hook
   const {
@@ -25,14 +26,14 @@ function App() {
     currentConversationId,
     startNewConversation,
     selectConversation,
-  } = useConversations(session);
+  } = useConversations();
 
   // Usage statistics hook
   const {
     usage,
     loading: usageLoading,
     error: usageError,
-  } = useUsage(session, currentConversationId);
+  } = useUsage(currentConversationId);
 
   // Turnstile integration
   useTurnstile(); // Turnstile integration
@@ -54,50 +55,52 @@ function App() {
   }
 
   return (
+    <div className="h-screen flex flex-col bg-gray-50">
+      <div id="turnstile-container" className="hidden opacity-0"></div>
+      <Header
+        sidebarOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        usage={usage}
+        usageLoading={usageLoading}
+        usageError={usageError}
+        signOut={signOut}
+        currentConversationId={currentConversationId}
+      />
+      <div className="flex-1 flex overflow-hidden">
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          selectConversation={selectConversation}
+          startNewConversation={startNewConversation}
+        />
+        <main className="flex-1 overflow-y-auto">
+          <ChatArea currentConversationId={currentConversationId} />
+        </main>
+      </div>
+      <SpeedInsights />
+      <Analytics
+        debug={isDebug}
+        beforeSend={(event) => {
+          if (process.env.REACT_APP_VERCEL_ENV !== "production") {
+            console.log("Analytics event (not sent):", event);
+            return null;
+          }
+          return event;
+        }}
+      />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
     <ErrorProvider>
       <ErrorBoundary>
-        <div className="h-screen flex flex-col bg-gray-50">
-          <div id="turnstile-container" className="hidden opacity-0"></div>
-          <Header
-            sidebarOpen={sidebarOpen}
-            toggleSidebar={toggleSidebar}
-            usage={usage}
-            usageLoading={usageLoading}
-            usageError={usageError}
-            logout={logout}
-            currentConversationId={currentConversationId}
-          />
-          <div className="flex-1 flex overflow-hidden">
-            <Sidebar
-              sidebarOpen={sidebarOpen}
-              conversations={conversations}
-              currentConversationId={currentConversationId}
-              selectConversation={selectConversation}
-              startNewConversation={startNewConversation}
-              session={session}
-            />
-            <main className="flex-1 overflow-y-auto">
-              <ChatArea
-                currentConversationId={currentConversationId}
-                session={session}
-              />
-            </main>
-          </div>
-          <SpeedInsights />
-          <Analytics
-            debug={isDebug}
-            beforeSend={(event) => {
-              if (process.env.REACT_APP_VERCEL_ENV !== "production") {
-                console.log("Analytics event (not sent):", event);
-                return null; // Don't send events in development or preview
-              }
-              return event;
-            }}
-          />
-        </div>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </ErrorBoundary>
     </ErrorProvider>
   );
 }
-
-export default App;

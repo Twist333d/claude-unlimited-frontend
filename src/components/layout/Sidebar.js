@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useConversations } from "../../hooks/useConversations";
 import {
   ChatBubbleBottomCenterIcon,
