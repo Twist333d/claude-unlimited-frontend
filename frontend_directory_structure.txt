@@ -55,6 +55,8 @@ src/
             Header.js
             Sidebar.js
     config.js
+    contexts/
+        ErrorContext.js
     hooks/
         useApi.js
         useAuth.js

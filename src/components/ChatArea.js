@@ -6,7 +6,7 @@ import LoadingIndicator from "./common/LoadingIndicator";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "./common/ErrorBoundary";
 import { useMessages } from "../hooks/useMessages";
-import { useConversations } from "../hooks/useConversations";
+import { useError } from "../contexts/ErrorContext";
 
 function ChatArea({ currentConversationId, session }) {
   // Use the useMessages hook to manage messages state and operations
@@ -14,6 +14,9 @@ function ChatArea({ currentConversationId, session }) {
     currentConversationId,
     session,
   );
+
+  // error context
+  const { showError } = useError();
 
   // Handler for sending messages
   const handleSendMessage = useCallback(

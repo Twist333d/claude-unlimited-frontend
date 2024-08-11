@@ -10,6 +10,7 @@ import LoadingIndicator from "./components/common/LoadingIndicator";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTurnstile } from "./hooks/useTurnstile";
+import { ErrorProvider } from "./contexts/ErrorContext";
 
 function App() {
   // Debug settings
@@ -56,50 +57,52 @@ function App() {
   }
 
   return (
-    <ErrorBoundary>
-      <div className="h-screen flex flex-col bg-gray-50">
-        <div id="turnstile-container" className="hidden opacity-0"></div>
-        <Header
-          sidebarOpen={sidebarOpen}
-          toggleSidebar={toggleSidebar}
-          usage={usage}
-          usageLoading={usageLoading}
-          usageError={usageError}
-          logout={logout}
-          currentConversationId={currentConversationId}
-        />
-        <div className="flex-1 flex overflow-hidden">
-          <Sidebar
+    <ErrorProvider>
+      <ErrorBoundary>
+        <div className="h-screen flex flex-col bg-gray-50">
+          <div id="turnstile-container" className="hidden opacity-0"></div>
+          <Header
             sidebarOpen={sidebarOpen}
-            conversations={conversations}
+            toggleSidebar={toggleSidebar}
+            usage={usage}
+            usageLoading={usageLoading}
+            usageError={usageError}
+            logout={logout}
             currentConversationId={currentConversationId}
-            loading={conversationsLoading}
-            error={conversationsError}
-            selectConversation={selectConversation}
-            startNewConversation={startNewConversation}
-            session={session} // Add this line
           />
-          <main className="flex-1 overflow-y-auto">
-            <ChatArea
+          <div className="flex-1 flex overflow-hidden">
+            <Sidebar
+              sidebarOpen={sidebarOpen}
+              conversations={conversations}
               currentConversationId={currentConversationId}
-              updateConversation={updateConversation}
-              session={session}
+              loading={conversationsLoading}
+              error={conversationsError}
+              selectConversation={selectConversation}
+              startNewConversation={startNewConversation}
+              session={session} // Add this line
             />
-          </main>
+            <main className="flex-1 overflow-y-auto">
+              <ChatArea
+                currentConversationId={currentConversationId}
+                updateConversation={updateConversation}
+                session={session}
+              />
+            </main>
+          </div>
+          <SpeedInsights />
+          <Analytics
+            debug={isDebug}
+            beforeSend={(event) => {
+              if (process.env.REACT_APP_VERCEL_ENV !== "production") {
+                console.log("Analytics event (not sent):", event);
+                return null; // Don't send events in development or preview
+              }
+              return event;
+            }}
+          />
         </div>
-        <SpeedInsights />
-        <Analytics
-          debug={isDebug}
-          beforeSend={(event) => {
-            if (process.env.REACT_APP_VERCEL_ENV !== "production") {
-              console.log("Analytics event (not sent):", event);
-              return null; // Don't send events in development or preview
-            }
-            return event;
-          }}
-        />
-      </div>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </ErrorProvider>
   );
 }
 
