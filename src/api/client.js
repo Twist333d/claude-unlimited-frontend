@@ -3,7 +3,7 @@ import { handleApiError } from "../utils/errorHandler";
 import { logger } from "../utils/logger";
 
 const createApiClient = (getToken, refreshSession) => {
-  const client = axios.create({
+  const apiClient = axios.create({
     baseURL: process.env.REACT_APP_API_URL || "http://localhost:5001",
     timeout: 10000,
     headers: {
@@ -11,7 +11,7 @@ const createApiClient = (getToken, refreshSession) => {
     },
   });
 
-  client.interceptors.request.use(
+  apiClient.interceptors.request.use(
     async (config) => {
       const token = getToken();
       if (token) {
@@ -25,18 +25,18 @@ const createApiClient = (getToken, refreshSession) => {
     },
   );
 
-  client.interceptors.response.use(
+  apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
           const newSession = await refreshSession();
           if (newSession) {
             originalRequest.headers["Authorization"] =
               `Bearer ${newSession.access_token}`;
-            return client(originalRequest);
+            return apiClient(originalRequest);
           }
         } catch (refreshError) {
           logger.error("Token refresh failed:", refreshError);
@@ -48,7 +48,7 @@ const createApiClient = (getToken, refreshSession) => {
     },
   );
 
-  return client;
+  return apiClient;
 };
 
 export default createApiClient;

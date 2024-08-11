@@ -1,5 +1,4 @@
 import React from "react";
-import { useAuth } from "./hooks/useAuth";
 import { useConversations } from "./hooks/useConversations";
 import { useUsage } from "./hooks/useUsage";
 import Header from "./components/layout/Header";
@@ -11,14 +10,15 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useTurnstile } from "./hooks/useTurnstile";
 import { ErrorProvider } from "./contexts/ErrorContext";
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider } from "./contexts/AuthProvider";
+import { useAuth } from "./hooks/useAuth";
 
 function AppContent() {
   // Debug settings
   const isDebug = process.env.REACT_APP_VERCEL_ENV !== "production";
 
   // Authentication hook
-  const { loading: authLoading, signOut } = useAuth();
+  const { loading: authLoading } = useAuth();
 
   // Conversations hook
   const {
@@ -63,7 +63,6 @@ function AppContent() {
         usage={usage}
         usageLoading={usageLoading}
         usageError={usageError}
-        signOut={signOut}
         currentConversationId={currentConversationId}
       />
       <div className="flex-1 flex overflow-hidden">

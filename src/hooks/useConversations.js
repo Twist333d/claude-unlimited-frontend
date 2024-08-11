@@ -10,15 +10,13 @@ export const useConversations = () => {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const sessionRef = useRef(session);
 
   const getConversations = useCallback(async () => {
-    console.log("Fetching conversations...");
+    if (!session) return;
     setLoading(true);
     setError(null);
     try {
       const result = await api.getConversations();
-      console.log("Conversations result:", result);
       setConversations(result);
     } catch (error) {
       logger.error("Failed to fetch conversations:", error);
@@ -26,17 +24,13 @@ export const useConversations = () => {
     } finally {
       setLoading(false);
     }
-  }, [api]);
+  }, [api, session]);
 
   useEffect(() => {
-    sessionRef.current = session;
-  }, [session]);
-
-  useEffect(() => {
-    if (sessionRef.current) {
+    if (session) {
       getConversations();
     }
-  }, [getConversations]);
+  }, [session, getConversations]);
 
   const selectConversation = useCallback((id) => {
     setCurrentConversationId(id);
