@@ -11,64 +11,115 @@ import { logger } from "../utils/logger";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [authState, setAuthState] = useState({
+    session: null,
+    loading: true,
+  });
 
-  const getToken = useCallback(() => session?.access_token, [session]);
+  const getToken = useCallback(
+    () => authState.session?.access_token,
+    [authState.session],
+  );
 
   const refreshSession = useCallback(async () => {
-    const { data, error } = await supabase.auth.refreshSession();
-    if (error) {
-      logger.error("Error refreshing session:", error);
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      setAuthState((prevState) => ({
+        ...prevState,
+        session: data.session,
+      }));
+      return data.session;
+    } catch (error) {
+      logger.error("Failed to refresh session:", error);
+      await supabase.auth.signOut();
+      setAuthState((prevState) => ({
+        ...prevState,
+        session: null,
+      }));
       return null;
     }
-    setSession(data.session);
-    return data.session;
   }, []);
 
   const signInAnonymously = useCallback(async () => {
-    const { data, error } = await supabase.auth.signInAnonymously();
-    if (error) {
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      setAuthState((prevState) => ({
+        ...prevState,
+        session: data.session,
+      }));
+      return data.session;
+    } catch (error) {
       logger.error("Error signing in anonymously:", error);
       return null;
     }
-    setSession(data.session);
-    return data.session;
   }, []);
+
+  const hasSessionChanged = useCallback(
+    (newSession) => {
+      return (
+        authState.session?.user?.id !== newSession?.user?.id ||
+        authState.session?.access_token !== newSession?.access_token
+      );
+    },
+    [authState.session],
+  );
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        setSession(session);
-      } else {
-        await signInAnonymously();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setAuthState((prevState) => ({
+          ...prevState,
+          session,
+          loading: false,
+        }));
+      } catch (error) {
+        logger.error("Error initializing auth:", error);
+      } finally {
+        setAuthState((prevState) => ({
+          ...prevState,
+          loading: false,
+        }));
       }
-      setLoading(false);
     };
 
     initializeAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setAuthState((prevState) => {
+        if (
+          prevState.session?.user?.id !== newSession?.user?.id ||
+          prevState.session?.access_token !== newSession?.access_token
+        ) {
+          logger.info("Auth state changed", {
+            event,
+            userId: newSession?.user.id,
+          });
+          return { session: newSession, loading: false };
+        }
+        return prevState;
+      });
     });
 
     return () => subscription.unsubscribe();
-  }, [signInAnonymously]);
+  }, []);
 
   const value = useMemo(
     () => ({
-      session,
-      loading,
+      session: authState.session,
+      loading: authState.loading,
       signInAnonymously,
       refreshSession,
       getToken,
+      hasSessionChanged,
     }),
-    [session, loading, signInAnonymously, refreshSession, getToken],
+    [authState, signInAnonymously, refreshSession, getToken, hasSessionChanged],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

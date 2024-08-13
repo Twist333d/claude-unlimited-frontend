@@ -4,69 +4,84 @@ import { useApi } from "./useApi";
 import { logger } from "../utils/logger";
 
 export const useConversations = () => {
-  const { session } = useAuth();
+  const { session, hasSessionChanged } = useAuth();
   const api = useApi();
-  const [conversations, setConversations] = useState([]);
-  const [currentConversationId, setCurrentConversationId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [state, setState] = useState({
+    conversations: [],
+    currentConversationId: null,
+    loading: false,
+    error: null,
+  });
+  const initialFetchDone = useRef(false);
 
   const getConversations = useCallback(async () => {
-    if (!session) return;
-    setLoading(true);
-    setError(null);
+    if (!session || initialFetchDone.current) return;
+
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    logger.info("getConversations called", { sessionId: session.user.id });
+
     try {
       const result = await api.getConversations();
-      setConversations(result);
+      setState((prev) => ({
+        ...prev,
+        conversations: result,
+        loading: false,
+      }));
+      initialFetchDone.current = true;
     } catch (error) {
       logger.error("Failed to fetch conversations:", error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
+      setState((prev) => ({ ...prev, error: error.message, loading: false }));
     }
   }, [api, session]);
 
   useEffect(() => {
-    if (session) {
+    if (session && hasSessionChanged(session)) {
       getConversations();
+    } else if (!session) {
+      setState({
+        conversations: [],
+        currentConversationId: null,
+        loading: false,
+        error: null,
+      });
+      initialFetchDone.current = false;
     }
-  }, [session, getConversations]);
+  }, [session, hasSessionChanged, getConversations]);
 
   const selectConversation = useCallback((id) => {
-    setCurrentConversationId(id);
+    setState((prev) => ({ ...prev, currentConversationId: id }));
   }, []);
 
   const startNewConversation = useCallback(
     async (title) => {
-      setLoading(true);
-      setError(null);
+      setState((prev) => ({ ...prev, loading: true, error: null }));
       try {
         const result = await api.createNewConversation(title);
-        setConversations((prevConversations) => [result, ...prevConversations]);
-        setCurrentConversationId(result.id);
+        setState((prev) => ({
+          ...prev,
+          conversations: [result, ...prev.conversations],
+          currentConversationId: result.id,
+          loading: false,
+        }));
       } catch (error) {
         logger.error("Failed to create new conversation:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
+        setState((prev) => ({ ...prev, error: error.message, loading: false }));
       }
     },
     [api],
   );
 
   const updateConversation = useCallback((id, data) => {
-    setConversations((prevConversations) =>
-      prevConversations.map((conv) =>
+    setState((prev) => ({
+      ...prev,
+      conversations: prev.conversations.map((conv) =>
         conv.id === id ? { ...conv, ...data } : conv,
       ),
-    );
+    }));
   }, []);
 
   return {
-    conversations,
-    currentConversationId,
-    loading,
-    error,
+    ...state,
     getConversations,
     selectConversation,
     startNewConversation,

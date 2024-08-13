@@ -19,7 +19,7 @@ export const useMessages = (conversationId) => {
       setMessages(result);
     } catch (err) {
       setError(err);
-      logger.error("Failed to send message:", err);
+      logger.error("Failed to load messages:", err);
     } finally {
       setLoading(false);
     }

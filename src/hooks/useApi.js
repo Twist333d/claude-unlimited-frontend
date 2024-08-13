@@ -30,8 +30,8 @@ export const useApi = () => {
   return useMemo(
     () => ({
       getConversations: () => callApi(apiMethods.getConversations),
-      getMessages: (conversationId, page) =>
-        callApi(apiMethods.getMessages, conversationId, page),
+      getMessages: (conversationId) =>
+        callApi(apiMethods.getMessages, conversationId),
       sendMessage: (conversationId, message) =>
         callApi(apiMethods.sendMessage, conversationId, message),
       getUsageStats: (conversationId) =>
